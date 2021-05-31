@@ -1,0 +1,45 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "options": {
+    // https://stackoverflow.com/a/54960358/8242705
+    "shell": {
+      "executable": "cmd.exe",
+      "args": [
+        "/d",
+        "/c",
+        "C:\\Program^ Files^ ^(x86^)\\Microsoft^ Visual^ Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat",
+        "&&"
+      ]
+    }
+  },
+  "tasks": [
+    // https://stackoverflow.com/a/57470981/8242705
+    // https://github.com/microsoft/vscode-cmake-tools/issues/1680
+    {
+      "label": "CMake Configure",
+      "type": "shell",
+      "command": "cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -H${workspaceFolder} -B${workspaceFolder}/build -G Ninja",
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake Build",
+      "type": "shell",
+      "command": "cmake --build build --config Debug --target all -- -j 10",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run windeployqt",
+      "type": "shell",
+      "command": "C:/Qt/5.15.2/msvc2019_64/bin/windeployqt.exe --debug --qmldir .  ${workspaceFolder}/build/vscode-qt-qml-vcpkg-template.exe",
+      "args": [],
+      "problemMatcher": []
+    },
+    {
+      "label": "Before Launch",
+      "dependsOn": ["CMake Build"],
+      "dependsOrder": "sequence"
+    }
+  ]
+}

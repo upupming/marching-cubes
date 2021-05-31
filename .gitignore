@@ -1,0 +1,4 @@
+build
+*.db
+build-release
+vscode-qt-qml-vcpkg-template-release-*.zip

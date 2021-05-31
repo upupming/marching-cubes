@@ -1,0 +1,161 @@
+name: Windows Build
+
+on:
+  push:
+  release:
+    types: [prereleased]
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+  name: vscode-qt-qml-vcpkg-template
+  # Disk C has 90GB free size, while disk D only has 11.3GB free disk size
+  # Override github envs, for vcpkg action to work properly: https://github.com/lukka/run-vcpkg/blob/36477d05567caebad06ad53713dcbde226135205/dist/index.js#L4891
+  GITHUB_WORKSPACE: C:/vscode-qt-qml-vcpkg-template
+  BUILD_SOURCESDIRECTORY: C:/vscode-qt-qml-vcpkg-template
+  srcDir: C:/vscode-qt-qml-vcpkg-template
+  buildDir: C:/vscode-qt-qml-vcpkg-template/build
+
+jobs:
+  check_commit_msg:
+    outputs:
+      commit_message: ${{ steps.get_message.outputs.message }}
+    name: Check if the workflow has been disabled.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get commit message
+        id: get_message
+        run: |
+          echo "::set-output name=message::$(git log --format=%B -n 1 ${{ github.event.after }})"
+          echo "::set-env name=message::$(git log --format=%B -n 1 ${{ github.event.after }})"
+  build:
+    needs: check_commit_msg
+    if: ${{ !contains( needs.check_commit_msg.outputs.commit_message, 'NO_WIN') }}
+    strategy:
+      matrix:
+        qt_version: [5.15.0]
+        platform: [windows-latest]
+        arch: [
+            # x86,
+            x64,
+          ]
+        include:
+          # x86 is get error (qt cannot be installed)
+          # - platform: windows-latest
+          #   arch: x86
+          #   qtarch: win32_msvc2019
+          - platform: windows-latest
+            arch: x64
+            qtarch: win64_msvc2019_64
+      fail-fast: false
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Get the version
+        id: get_version
+        shell: bash
+        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
+      - name: Checking out sources
+        shell: powershell
+        run: |
+          mkdir ${{ env.srcDir }}
+          git clone --recurse-submodules https://github.com/upupming/vscode-qt-qml-vcpkg-template.git ${{ env.srcDir }}
+          cd ${{ env.srcDir }}
+      - name: Install Python 3.7 version
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.7"
+          architecture: ${{ matrix.arch }}
+      # =========================================================================================================
+      - name: Install MSVC compiler
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          # 14.1 is for vs2017, 14.2 is vs2019
+          toolset: 14.2
+          arch: ${{ matrix.arch }}
+
+      # Restore from cache the previously built ports. If cache-miss, download and build vcpkg (aka "bootstrap vcpkg").
+      - name: Restore from cache and install vcpkg
+        # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
+        uses: lukka/run-vcpkg@v6
+        with:
+          # Just install vcpkg for now, do not install any ports in this step yet.
+          setupOnly: true
+          # Location of the vcpkg submodule in the Git repository.
+          vcpkgDirectory: "${{ env.srcDir }}/vcpkg"
+          # Since the cache must be invalidated when content of the vcpkg.json file changes, let's
+          # compute its hash and append this to the computed cache's key.
+          appendedCacheKey: ${{ hashFiles( '**/vcpkg_manifest/vcpkg.json' ) }}
+          vcpkgTriplet: ${{ matrix.arch }}-windows
+          # Ensure the vcpkg artifacts are cached, they are generated in the 'CMAKE_BINARY_DIR/vcpkg_installed' directory.
+          additionalCachedPaths: ${{ env.buildDir }}/vcpkg_installed
+
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: QtCache-${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.qt_version }}
+      - name: Installing Qt - ${{ matrix.arch }}
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{ matrix.qt_version }}
+          arch: ${{ matrix.qtarch }}
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+      # =========================================================================================================
+      - name: Win-${{ matrix.arch }} - ${{ matrix.qt_version }} - Setup Ninja
+        if: matrix.platform == 'windows-latest'
+        uses: ashutoshvarma/setup-ninja@master
+        with:
+          # ninja version to download. Default: 1.10.0
+          version: 1.10.0
+      # ========================================================================================================= Generate MakeFile and Build
+      - name: Win-${{ matrix.arch }} - ${{ matrix.qt_version }} - Generate Dependencies and Build
+        shell: powershell
+        env:
+          CC: cl.exe
+          CXX: cl.exe
+        # https://stackoverflow.com/questions/31262342/cmake-g-ninja-on-windows-specify-x64?rq=1
+        run: |
+          Get-PsDrive
+          cmake -S ${{ env.srcDir }} -B ${{ env.buildDir }} -GNinja -DCMAKE_BUILD_TYPE=Release
+          cmake --build ${{ env.buildDir }} --target all --parallel $(nproc)
+          cd ${{ env.buildDir }}
+          windeployqt.exe --release --qmldir .. ./${{ env.name }}.exe
+          Get-PsDrive
+
+      - name: Set outputs
+        id: vars
+        run: |
+          cd ${{ env.srcDir }}
+          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      - name: Get Time
+        id: time
+        uses: nanzm/get-time-action@v1.1
+        with:
+          timeZone: 8
+          format: "YYYY-MM-DD-HH-mm-ss"
+
+      - name: Win-${{ matrix.arch }} - ${{ matrix.qt_version }} - uploading artifact (whole zip)
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{ env.name }}-${{ steps.time.outputs.time }}-${{ steps.vars.outputs.sha_short }}-windows-${{ matrix.arch }}-package
+          path: |
+            ${{ env.buildDir }}
+            !${{ env.buildDir }}/.cmake
+            !${{ env.buildDir }}/CMakeFiles
+            !${{ env.buildDir }}/cmake_install.cmake
+            !${{ env.buildDir }}/CMakeCache.txt
+            !${{ env.buildDir }}/.ninja_deps
+            !${{ env.buildDir }}/.ninja_log
+            !${{ env.buildDir }}/build.ninja
+            !${{ env.buildDir }}/**/*autogen*
+            !${{ env.buildDir }}/vcpkg_installed
+            !${{ env.buildDir }}/**/*.log
+            !${{ env.buildDir }}/*.manifest
+            !${{ env.buildDir }}/compile_commands.json
+      - name: Win-${{ matrix.arch }} - ${{ matrix.qt_version }} - uploading artifact (only the exe)
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{ env.name }}-${{ steps.time.outputs.time }}-${{ steps.vars.outputs.sha_short }}-windows-${{ matrix.arch }}-exe
+          path: ${{ env.buildDir }}/${{ env.name }}.exe

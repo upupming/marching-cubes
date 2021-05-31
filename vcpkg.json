@@ -1,0 +1,15 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+    "name": "vscode-qt-qml-vcpkg-template",
+    "version-string": "0.0.1",
+    "license": "MIT",
+    "builtin-baseline": "030cfaa24de9ea1bbf0a4d9c615ce7312ba77af1",
+    "dependencies": [
+        {
+            "name": "sqlite3",
+            "version>=": "3.35.2",
+            "default-features": true,
+            "platform": "windows & x64"
+        }
+    ]
+}
