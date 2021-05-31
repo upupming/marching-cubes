@@ -6,13 +6,13 @@ on:
     types: [prereleased]
 env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-  name: vscode-qt-qml-vcpkg-template
+  name: marching-cubes
   # Disk C has 90GB free size, while disk D only has 11.3GB free disk size
   # Override github envs, for vcpkg action to work properly: https://github.com/lukka/run-vcpkg/blob/36477d05567caebad06ad53713dcbde226135205/dist/index.js#L4891
-  GITHUB_WORKSPACE: C:/vscode-qt-qml-vcpkg-template
-  BUILD_SOURCESDIRECTORY: C:/vscode-qt-qml-vcpkg-template
-  srcDir: C:/vscode-qt-qml-vcpkg-template
-  buildDir: C:/vscode-qt-qml-vcpkg-template/build
+  GITHUB_WORKSPACE: C:/marching-cubes
+  BUILD_SOURCESDIRECTORY: C:/marching-cubes
+  srcDir: C:/marching-cubes
+  buildDir: C:/marching-cubes/build
 
 jobs:
   check_commit_msg:
@@ -59,7 +59,7 @@ jobs:
         shell: powershell
         run: |
           mkdir ${{ env.srcDir }}
-          git clone --recurse-submodules https://github.com/upupming/vscode-qt-qml-vcpkg-template.git ${{ env.srcDir }}
+          git clone --recurse-submodules https://github.com/upupming/marching-cubes.git ${{ env.srcDir }}
           cd ${{ env.srcDir }}
       - name: Install Python 3.7 version
         uses: actions/setup-python@v1

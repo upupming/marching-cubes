@@ -32,7 +32,7 @@
     {
       "label": "Run windeployqt",
       "type": "shell",
-      "command": "C:/Qt/5.15.2/msvc2019_64/bin/windeployqt.exe --debug --qmldir .  ${workspaceFolder}/build/vscode-qt-qml-vcpkg-template.exe",
+      "command": "C:/Qt/5.15.2/msvc2019_64/bin/windeployqt.exe --debug --qmldir .  ${workspaceFolder}/build/marching-cubes.exe",
       "args": [],
       "problemMatcher": []
     },

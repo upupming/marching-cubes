@@ -5,7 +5,7 @@ set WIN_DEPLOY_QT="C:/Qt/5.15.2/msvc2019_64/bin/windeployqt.exe"
 @REM https://stackoverflow.com/a/203116/8242705
 For /f "tokens=1-3 delims=/ " %%a in ('date /t') do (set mydate=%%c-%%a-%%b)
 For /f "tokens=1-2 delims=/:" %%a in ("%TIME%") do (set mytime=%%a-%%b)
-set APP_NAME=vscode-qt-qml-vcpkg-template
+set APP_NAME=marching-cubes
 set RELEASE_NAME=%APP_NAME%-release-%mydate%_%mytime%
 
 :: make sure we found them

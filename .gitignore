@@ -1,4 +1,4 @@
 build
 *.db
 build-release
-vscode-qt-qml-vcpkg-template-release-*.zip
+marching-cubes-release-*.zip

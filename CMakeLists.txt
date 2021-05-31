@@ -12,7 +12,7 @@ else()
     set(CMAKE_TOOLCHAIN_FILE "./vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 endif()
 
-set(PROJECT "vscode-qt-qml-vcpkg-template")
+set(PROJECT "marching-cubes")
 project(${PROJECT} LANGUAGES CXX)
 
 list(APPEND CMAKE_PREFIX_PATH "C:/Qt/5.15.2/msvc2019_64")
