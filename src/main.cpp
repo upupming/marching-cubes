@@ -1,9 +1,10 @@
-#include <sqlite3.h>
-
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickItem>
 #include <QQuickWindow>
+
+#include "marching_cubes.h"
+#include "raw_reader.h"
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
@@ -19,21 +20,11 @@ int main(int argc, char *argv[]) {
         Qt::QueuedConnection);
     engine.load(url);
 
-    // --- Test SQLite3 (Copy DLLs)
-    sqlite3 *db;
-    char *zErrMsg = 0;
-    int rc;
+    const int Z = 507, Y = 512, X = 512;
+    RawReader rawReader("./data/cbct_sample_z=507_y=512_x=512.raw", Z, Y, X);
+    const unsigned short *data = rawReader.data();
 
-    rc = sqlite3_open("test.db", &db);
-
-    if (rc) {
-        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-        return (0);
-    } else {
-        fprintf(stderr, "Opened database successfully\n");
-    }
-    sqlite3_close(db);
-    // system("pause");
+    MarchingCubes mc(data, 0.3, 0.3, 0.3);
 
     return app.exec();
 }

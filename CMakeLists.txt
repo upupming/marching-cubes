@@ -84,10 +84,6 @@ target_compile_definitions(${PROJECT}
 target_link_libraries(${PROJECT}
   PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick)
 
-
-find_package(unofficial-sqlite3 CONFIG REQUIRED)
-target_link_libraries(${PROJECT} PRIVATE unofficial::sqlite3::sqlite3)
-
 target_include_directories(${PROJECT}
     PRIVATE
     ${header_dir_list})
