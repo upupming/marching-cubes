@@ -2,9 +2,26 @@
 #include <QQmlApplicationEngine>
 #include <QQuickItem>
 #include <QQuickWindow>
+#include <QtConcurrent>
+#include <array>
+#include <iostream>
 
 #include "marching_cubes.h"
 #include "raw_reader.h"
+
+extern template class MarchingCubes<unsigned short>;
+
+void testMarchingCubes() {
+    const int Z = 507, Y = 512, X = 512;
+    RawReader rawReader("./data/cbct_sample_z=507_y=512_x=512.raw", Z, Y, X);
+    const unsigned short *data = rawReader.data();
+
+    std::array<int, 3> dim{Z, Y, X};
+    std::array<double, 3> spacing{0.3, 0.3, 0.3};
+    double isoValue = 800;
+    MarchingCubes mc(data, dim, spacing);
+    mc.runAlgorithm(isoValue);
+}
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
@@ -20,11 +37,13 @@ int main(int argc, char *argv[]) {
         Qt::QueuedConnection);
     engine.load(url);
 
-    const int Z = 507, Y = 512, X = 512;
-    RawReader rawReader("./data/cbct_sample_z=507_y=512_x=512.raw", Z, Y, X);
-    const unsigned short *data = rawReader.data();
+#if _DEBUG
+    std::cout << "Debug mode" << std::endl;
+#else
+    std::cout << "Release mode" << std::endl;
+#endif
 
-    MarchingCubes mc(data, 0.3, 0.3, 0.3);
+    QtConcurrent::run(testMarchingCubes);
 
     return app.exec();
 }

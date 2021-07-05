@@ -17,22 +17,37 @@
   "tasks": [
     // https://stackoverflow.com/a/57470981/8242705
     // https://github.com/microsoft/vscode-cmake-tools/issues/1680
+    // Ninja is single conf generator, but has multi mode
+    // https://stackoverflow.com/a/66845236/8242705, https://cmake.org/cmake/help/git-stage/guide/user-interaction/index.html
     {
       "label": "CMake Configure",
       "type": "shell",
-      "command": "cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -H${workspaceFolder} -B${workspaceFolder}/build -G Ninja",
+      "command": "cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -H${workspaceFolder} -B${workspaceFolder}/build -G \"Ninja Multi-Config\"",
       "problemMatcher": []
     },
     {
-      "label": "CMake Build",
+      "label": "CMake Build Debug",
       "type": "shell",
       "command": "cmake --build build --config Debug --target all -- -j 10",
       "problemMatcher": []
     },
     {
-      "label": "Run windeployqt",
+      "label": "CMake Build Release",
       "type": "shell",
-      "command": "C:/Qt/5.15.2/msvc2019_64/bin/windeployqt.exe --debug --qmldir .  ${workspaceFolder}/build/marching-cubes.exe",
+      "command": "cmake --build build --config Release --target all -- -j 10",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run windeployqt Debug",
+      "type": "shell",
+      "command": "C:/Qt/5.15.2/msvc2019_64/bin/windeployqt.exe --debug --qmldir .  ${workspaceFolder}/build/Debug/marching-cubes.exe",
+      "args": [],
+      "problemMatcher": []
+    },
+    {
+      "label": "Run windeployqt Release",
+      "type": "shell",
+      "command": "C:/Qt/5.15.2/msvc2019_64/bin/windeployqt.exe --release --qmldir .  ${workspaceFolder}/build/Release/marching-cubes.exe",
       "args": [],
       "problemMatcher": []
     },

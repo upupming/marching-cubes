@@ -18,7 +18,7 @@ project(${PROJECT} LANGUAGES CXX)
 list(APPEND CMAKE_PREFIX_PATH "C:/Qt/5.15.2/msvc2019_64")
 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick Concurrent REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR}QuickCompiler)
 message(STATUS "QT_FOUND ${QT_FOUND}")
 message(STATUS "QT_CONFIG ${QT_CONFIG}")
@@ -82,7 +82,7 @@ endif()
 target_compile_definitions(${PROJECT}
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(${PROJECT}
-  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick)
+  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick Qt${QT_VERSION_MAJOR}::Concurrent)
 
 target_include_directories(${PROJECT}
     PRIVATE
