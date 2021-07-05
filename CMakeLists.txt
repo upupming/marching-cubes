@@ -87,3 +87,6 @@ target_link_libraries(${PROJECT}
 target_include_directories(${PROJECT}
     PRIVATE
     ${header_dir_list})
+
+find_package(OpenMP REQUIRED)
+target_link_libraries(${PROJECT} PRIVATE OpenMP::OpenMP_CXX)

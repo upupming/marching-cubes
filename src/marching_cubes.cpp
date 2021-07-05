@@ -12,6 +12,7 @@ MarchingCubes::MarchingCubes(const unsigned short* data, std::array<int, 3> dim,
     this->dim = dim;
     this->spacing = spacing;
     this->reverseGradientDirection = reverseGradientDirection;
+    omp_init_lock(&lock);  // 初始化互斥锁
 
     // 初始为 -1 表示没有插值
     xDirectionInterpolatedVertexIndex.resize(
@@ -36,6 +37,10 @@ MarchingCubes::MarchingCubes(const unsigned short* data, std::array<int, 3> dim,
             std::vector<int>(dim[2], -1)));
 }
 
+MarchingCubes::~MarchingCubes() {
+    omp_destroy_lock(&lock);  //销毁互斥器
+}
+
 void MarchingCubes::runAlgorithm(double isoValue) {
     clock_t time = clock();
 
@@ -43,11 +48,12 @@ void MarchingCubes::runAlgorithm(double isoValue) {
     // 计算所有插值顶点
     computeInterpolatedVertices();
 
-    std::vector<double> cube(8);
-    // 运行 marching cubes 算法，marching 并逐个处理 cube
-    for (int i = 0; i + 1 < dim[0]; i++) {
-        for (int j = 0; j + 1 < dim[1]; j++) {
-            for (int k = 0; k + 1 < dim[2]; k++) {
+// 运行 marching cubes 算法，marching 并逐个处理 cube
+#pragma omp parallel for
+    for (int i = 0; i < dim[0] - 1; i++) {
+        for (int j = 0; j < dim[1] - 1; j++) {
+            for (int k = 0; k < dim[2] - 1; k++) {
+                std::vector<double> cube(8);
                 // 计算 configuration 编号
                 int configurationIndex = 0;
                 for (int l = 0; l < 8; l++) {
@@ -346,7 +352,9 @@ void MarchingCubes::addTriangle(int i, int j, int k, std::vector<char> edges) {
         if (a == b || b == c || a == c) {
             assert(false);
         }
+        omp_set_lock(&lock);  //获得互斥器
         triangles.push_back({a, b, c});
+        omp_unset_lock(&lock);  //释放互斥器
     }
 }
 

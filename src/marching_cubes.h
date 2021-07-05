@@ -3,6 +3,8 @@ Marching Cubes 算法实现
 参考论文: efficient implementation of Marching Cubes’ cases with topological guarantees
 */
 #pragma once
+#include <omp.h>
+
 #include <array>
 #include <iostream>
 #include <string>
@@ -35,6 +37,7 @@ struct Vertex {
 class MarchingCubes {
    public:
     MarchingCubes(const unsigned short* data, std::array<int, 3> dim, std::array<double, 3> spacing, bool reverseGradientDirection = false);
+    MarchingCubes::~MarchingCubes();
     /**
     * 运行算法，生成顶点（带法线）、三角形
     * \param isoValue 等值面大小
@@ -45,6 +48,7 @@ class MarchingCubes {
     void saveObj(std::string filename);
 
    private:
+    omp_lock_t lock;
     const unsigned short* data;
     std::array<int, 3> dim;
     std::array<double, 3> spacing{1, 1, 1};

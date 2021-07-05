@@ -5,6 +5,7 @@
 #include "marching_cubes.h"
 
 void MarchingCubes::computeInterpolatedVertices() {
+#pragma omp parallel for
     for (int i = 0; i < dim[0]; i++) {
         for (int j = 0; j < dim[1]; j++) {
             for (int k = 0; k < dim[2]; k++) {
@@ -34,8 +35,11 @@ void MarchingCubes::computeInterpolatedVertices() {
                         normal_interpolated[0],
                         normal_interpolated[1],
                         normal_interpolated[2]);
+
+                    omp_set_lock(&lock);  //获得互斥器
                     vertices.push_back(v);
                     xDirectionInterpolatedVertexIndex[i][j][k] = vertices.size() - 1;
+                    omp_unset_lock(&lock);  //释放互斥器
                 }
 
                 // y 方向
@@ -57,8 +61,10 @@ void MarchingCubes::computeInterpolatedVertices() {
                         normal_interpolated[0],
                         normal_interpolated[1],
                         normal_interpolated[2]);
+                    omp_set_lock(&lock);  //获得互斥器
                     vertices.push_back(v);
                     yDirectionInterpolatedVertexIndex[i][j][k] = vertices.size() - 1;
+                    omp_unset_lock(&lock);  //释放互斥器
                 }
 
                 // z 方向
@@ -80,8 +86,10 @@ void MarchingCubes::computeInterpolatedVertices() {
                         normal_interpolated[0],
                         normal_interpolated[1],
                         normal_interpolated[2]);
+                    omp_set_lock(&lock);  //获得互斥器
                     vertices.push_back(v);
                     zDirectionInterpolatedVertexIndex[i][j][k] = vertices.size() - 1;
+                    omp_unset_lock(&lock);  //释放互斥器
                 }
             }
         }
@@ -190,6 +198,8 @@ void MarchingCubes::addCenterVertex(int i, int j, int k) {
     }
     center /= cnt;
     center.normalizeNormal();
+    omp_set_lock(&lock);  //获得互斥器
     vertices.push_back(center);
     centerInterpolatedVertexIndex[i][j][k] = vertices.size() - 1;
+    omp_unset_lock(&lock);  //释放互斥器
 }
