@@ -9,8 +9,6 @@
 #include "marching_cubes.h"
 #include "raw_reader.h"
 
-extern template class MarchingCubes<unsigned short>;
-
 void testMarchingCubes() {
     const int Z = 507, Y = 512, X = 512;
     RawReader rawReader("./data/cbct_sample_z=507_y=512_x=512.raw", Z, Y, X);

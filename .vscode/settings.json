@@ -75,7 +75,11 @@
     "xtr1common": "cpp",
     "xtree": "cpp",
     "array": "cpp",
-    "qtconcurrent": "cpp"
+    "qtconcurrent": "cpp",
+    "condition_variable": "cpp",
+    "future": "cpp",
+    "iostream": "cpp",
+    "random": "cpp"
   },
   "cmake.configureOnOpen": false,
   "cmake.configureOnEdit": false,

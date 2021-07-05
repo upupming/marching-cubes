@@ -1,10 +1,10 @@
 ﻿
+#include <cassert>
 #include <iostream>
 
 #include "marching_cubes.h"
 
-template <typename T>
-void MarchingCubes<T>::computeInterpolatedVertices() {
+void MarchingCubes::computeInterpolatedVertices() {
     for (int i = 0; i < dim[0]; i++) {
         for (int j = 0; j < dim[1]; j++) {
             for (int k = 0; k < dim[2]; k++) {
@@ -88,30 +88,103 @@ void MarchingCubes<T>::computeInterpolatedVertices() {
     }
 }
 
-template <typename T>
-double MarchingCubes<T>::getXGradient(int i, int j, int k) {
+double MarchingCubes::getXGradient(int i, int j, int k) {
     if (i == 0) return (getData(i + 1, j, k) - getData(i, j, k)) / spacing[0];
     if (i == dim[0] - 1) return (getData(i, j, k) - getData(i - 1, j, k)) / spacing[0];
     return (getData(i + 1, j, k) - getData(i - 1, j, k)) / (2 * spacing[0]);
 }
 
-template <typename T>
-double MarchingCubes<T>::getYGradient(int i, int j, int k) {
+double MarchingCubes::getYGradient(int i, int j, int k) {
     if (j == 0) return (getData(i, j + 1, k) - getData(i, j, k)) / spacing[1];
     if (j == dim[1] - 1) return getData(i, j, k) - getData(i, j - 1, k) / spacing[1];
     return (getData(i, j + 1, k) - getData(i, j - 1, k)) / (2 * spacing[1]);
 }
 
-template <typename T>
-double MarchingCubes<T>::getZGradient(int i, int j, int k) {
+double MarchingCubes::getZGradient(int i, int j, int k) {
     if (k == 0) return (getData(i, j, k + 1) - getData(i, j, k)) / spacing[2];
     if (k == dim[2] - 1) return (getData(i, j, k) - getData(i, j, k - 1)) / spacing[2];
     return (getData(i, j, k + 1) - getData(i, j, k - 1)) / (2 * spacing[2]);
 }
 
-template <typename T>
-std::array<double, 3> MarchingCubes<T>::getNormal(int i, int j, int k) {
+std::array<double, 3> MarchingCubes::getNormal(int i, int j, int k) {
     return {getXGradient(i, j, k), getYGradient(i, j, k), getZGradient(i, j, k)};
 }
 
-template class MarchingCubes<unsigned short>;
+int MarchingCubes::getCubeVertexIndex(int i, int j, int k, int edgeIdx) {
+    switch (edgeIdx) {
+        case 0:
+            return xDirectionInterpolatedVertexIndex[i][j][k];
+        case 1:
+            return yDirectionInterpolatedVertexIndex[i + 1][j][k];
+        case 2:
+            return xDirectionInterpolatedVertexIndex[i][j + 1][k];
+        case 3:
+            return yDirectionInterpolatedVertexIndex[i][j][k];
+        case 4:
+            return xDirectionInterpolatedVertexIndex[i][j][k + 1];
+        case 5:
+            return yDirectionInterpolatedVertexIndex[i + 1][j][k + 1];
+        case 6:
+            return xDirectionInterpolatedVertexIndex[i][j + 1][k + 1];
+        case 7:
+            return yDirectionInterpolatedVertexIndex[i][j][k + 1];
+        case 8:
+            return zDirectionInterpolatedVertexIndex[i][j][k];
+        case 9:
+            return zDirectionInterpolatedVertexIndex[i + 1][j][k];
+        case 10:
+            return zDirectionInterpolatedVertexIndex[i + 1][j + 1][k];
+        case 11:
+            return zDirectionInterpolatedVertexIndex[i][j + 1][k];
+        case 12:
+            // 如果之前没有创建过，在这里创建这个 12 的点
+            if (centerInterpolatedVertexIndex[i][j][k] == -1) {
+                addCenterVertex(i, j, k);
+            }
+            return centerInterpolatedVertexIndex[i][j][k];
+    }
+    assert(false);
+    return -1;
+}
+
+void MarchingCubes::addCenterVertex(int i, int j, int k) {
+    Vertex center(0, 0, 0, 0, 0, 0);
+    int cnt = 0;
+
+    // 4 条 x 方向的边
+    for (int s = 0; s < 2; s++) {
+        for (int t = 0; t < 2; t++) {
+            auto vid = xDirectionInterpolatedVertexIndex[i][j + s][k + t];
+            if (vid != -1) {
+                center += vertices[vid];
+                cnt++;
+            }
+        }
+    }
+    // 4 条 y 方向的边
+    for (int s = 0; s < 2; s++) {
+        for (int t = 0; t < 2; t++) {
+            auto vid = xDirectionInterpolatedVertexIndex[i + s][j][k + t];
+            if (vid != -1) {
+                center += vertices[vid];
+                cnt++;
+            }
+        }
+    }
+    // 4 条 z 方向的边
+    for (int s = 0; s < 2; s++) {
+        for (int t = 0; t < 2; t++) {
+            auto vid = xDirectionInterpolatedVertexIndex[i + s][j + t][k];
+            if (vid != -1) {
+                center += vertices[vid];
+                cnt++;
+            }
+        }
+    }
+
+    // 既然要插值中间 vertex，肯定不可能边上没有 vertex 的
+    center /= cnt;
+    center.normalizeNormal();
+    vertices.push_back(center);
+    centerInterpolatedVertexIndex[i][j][k] = vertices.size() - 1;
+}
