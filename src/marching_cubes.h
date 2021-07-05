@@ -4,13 +4,17 @@ Marching Cubes 算法实现
 */
 #pragma once
 #include <array>
+#include <iostream>
+#include <string>
 #include <vector>
 struct Vertex {
     // 顶点坐标
     double x, y, z;
     // 法向量
     double nx, ny, nz;
-    Vertex(double x, double y, double z, double nx, double ny, int nz) : x(x), y(y), z(z), nx(nx), ny(ny), nz(nz) {}
+    Vertex(double x, double y, double z, double nx, double ny, int nz) : x(x), y(y), z(z), nx(nx), ny(ny), nz(nz) {
+        normalizeNormal();
+    }
     Vertex& operator+=(const Vertex& rhs) {
         x += rhs.x, y += rhs.y, z += rhs.z;
         nx += rhs.nx, ny += rhs.ny, nz += rhs.nz;
@@ -38,6 +42,7 @@ class MarchingCubes {
     void runAlgorithm(double isoValue);
     inline std::vector<Vertex> getVertices() { return vertices; }
     inline std::vector<std::array<int, 3>> getTriangles() { return triangles; }
+    void saveObj(std::string filename);
 
    private:
     const unsigned short* data;
@@ -49,7 +54,12 @@ class MarchingCubes {
     std::vector<std::array<int, 3>> triangles;
     double isoValue;
     inline double getData(int i, int j, int k) {
-        return data[i * dim[1] * dim[2] + j * dim[2] + k] - isoValue;
+        double val = data[i * dim[1] * dim[2] + j * dim[2] + k] - isoValue;
+        // 如果返回 0 的话，后面计算边的插值点的时候会出问题（要么插值就是 cube 顶点，要么不插值，都是不对的，前者会造成三角形塌陷成两个点，后者会造成没有顶点用来构成三角形）
+        if (abs(val) < FLT_EPSILON) {
+            val = FLT_EPSILON;
+        }
+        return val;
     }
 
     // xDirectionInterpolatedVertexIndex[i][j][k]

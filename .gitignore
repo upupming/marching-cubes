@@ -4,3 +4,4 @@ build-release
 marching-cubes-release-*.zip
 cmake-build*
 .idea
+*.obj

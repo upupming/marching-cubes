@@ -184,6 +184,7 @@ void MarchingCubes::processCube(int i, int j, int k, int configurationIndex, con
                 default:
                     assert(false);
             }
+            break;
         // 8: 2 个三角形
         case 8:
             addTriangle(i, j, k, {tiling8[configurationIndexInCase], tiling8[configurationIndexInCase] + 2 * 3});
@@ -324,7 +325,6 @@ void MarchingCubes::processCube(int i, int j, int k, int configurationIndex, con
             } else {
                 assert(false);
             }
-
             break;
         case 14:
             // 14: 4 个三角形
@@ -337,10 +337,16 @@ void MarchingCubes::processCube(int i, int j, int k, int configurationIndex, con
 
 void MarchingCubes::addTriangle(int i, int j, int k, std::vector<char> edges) {
     for (int l = 0; l < edges.size(); l += 3) {
-        triangles.push_back(
-            {getCubeVertexIndex(i, j, k, edges[l]),
-             getCubeVertexIndex(i, j, k, edges[l + 1]),
-             getCubeVertexIndex(i, j, k, edges[l + 2])});
+        int a = getCubeVertexIndex(i, j, k, edges[l]);
+        int b = getCubeVertexIndex(i, j, k, edges[l + 1]);
+        int c = getCubeVertexIndex(i, j, k, edges[l + 2]);
+        if (a == -1 || b == -1 || c == -1) {
+            assert(false);
+        }
+        if (a == b || b == c || a == c) {
+            assert(false);
+        }
+        triangles.push_back({a, b, c});
     }
 }
 

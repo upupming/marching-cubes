@@ -107,7 +107,8 @@ double MarchingCubes::getZGradient(int i, int j, int k) {
 }
 
 std::array<double, 3> MarchingCubes::getNormal(int i, int j, int k) {
-    return {getXGradient(i, j, k), getYGradient(i, j, k), getZGradient(i, j, k)};
+    int d = reverseGradientDirection ? -1 : 1;
+    return {getXGradient(i, j, k) * d, getYGradient(i, j, k) * d, getZGradient(i, j, k) * d};
 }
 
 int MarchingCubes::getCubeVertexIndex(int i, int j, int k, int edgeIdx) {
@@ -143,6 +144,7 @@ int MarchingCubes::getCubeVertexIndex(int i, int j, int k, int edgeIdx) {
             }
             return centerInterpolatedVertexIndex[i][j][k];
     }
+    std::cerr << "wrong edgeIdx: " << edgeIdx << std::endl;
     assert(false);
     return -1;
 }
@@ -164,7 +166,7 @@ void MarchingCubes::addCenterVertex(int i, int j, int k) {
     // 4 条 y 方向的边
     for (int s = 0; s < 2; s++) {
         for (int t = 0; t < 2; t++) {
-            auto vid = xDirectionInterpolatedVertexIndex[i + s][j][k + t];
+            auto vid = yDirectionInterpolatedVertexIndex[i + s][j][k + t];
             if (vid != -1) {
                 center += vertices[vid];
                 cnt++;
@@ -174,7 +176,7 @@ void MarchingCubes::addCenterVertex(int i, int j, int k) {
     // 4 条 z 方向的边
     for (int s = 0; s < 2; s++) {
         for (int t = 0; t < 2; t++) {
-            auto vid = xDirectionInterpolatedVertexIndex[i + s][j + t][k];
+            auto vid = zDirectionInterpolatedVertexIndex[i + s][j + t][k];
             if (vid != -1) {
                 center += vertices[vid];
                 cnt++;
@@ -183,6 +185,9 @@ void MarchingCubes::addCenterVertex(int i, int j, int k) {
     }
 
     // 既然要插值中间 vertex，肯定不可能边上没有 vertex 的
+    if (cnt == 0) {
+        assert(false);
+    }
     center /= cnt;
     center.normalizeNormal();
     vertices.push_back(center);

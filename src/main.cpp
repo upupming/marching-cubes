@@ -15,15 +15,15 @@ void testMarchingCubes() {
     const unsigned short *data = rawReader.data();
 
     std::array<int, 3> dim{Z, Y, X};
-    std::array<double, 3> spacing{0.3, 0.3, 0.3};
+    std::array<double, 3> spacing{0.6, 0.3, 0.3};
     double isoValue = 800;
-    MarchingCubes mc(data, dim, spacing);
+    MarchingCubes mc(data, dim, spacing, true);
     mc.runAlgorithm(isoValue);
+    mc.saveObj("./data/cbct_isoValue=" + std::to_string(isoValue) + ".obj");
 }
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
-    qDebug() << "Hello world";
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(
