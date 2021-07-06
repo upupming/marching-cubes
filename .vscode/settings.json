@@ -79,7 +79,8 @@
     "condition_variable": "cpp",
     "future": "cpp",
     "iostream": "cpp",
-    "random": "cpp"
+    "random": "cpp",
+    "cassert": "cpp"
   },
   "cmake.configureOnOpen": false,
   "cmake.configureOnEdit": false,
