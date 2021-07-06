@@ -34,6 +34,9 @@
 
     ![](img/equal-to-iso.png)
 
+- OMP 加速之后算法需要 9s 左右，但是文件写入无法加速，21s 左右。
+    - isoValue 800, 顶点数 4,256,478, 面数 8,165,228
+
 细节展示：
 
 ![](img/details.png)

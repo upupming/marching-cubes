@@ -48,7 +48,7 @@ class MarchingCubes {
     void saveObj(std::string filename);
 
    private:
-    omp_lock_t lock;
+    omp_lock_t vertexLock, triangleLock;
     const unsigned short* data;
     std::array<int, 3> dim;
     std::array<double, 3> spacing{1, 1, 1};

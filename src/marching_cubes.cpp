@@ -12,7 +12,8 @@ MarchingCubes::MarchingCubes(const unsigned short* data, std::array<int, 3> dim,
     this->dim = dim;
     this->spacing = spacing;
     this->reverseGradientDirection = reverseGradientDirection;
-    omp_init_lock(&lock);  // 初始化互斥锁
+    omp_init_lock(&vertexLock);
+    omp_init_lock(&triangleLock);
 
     // 初始为 -1 表示没有插值
     xDirectionInterpolatedVertexIndex.resize(
@@ -38,7 +39,8 @@ MarchingCubes::MarchingCubes(const unsigned short* data, std::array<int, 3> dim,
 }
 
 MarchingCubes::~MarchingCubes() {
-    omp_destroy_lock(&lock);  //销毁互斥器
+    omp_destroy_lock(&vertexLock);
+    omp_destroy_lock(&triangleLock);
 }
 
 void MarchingCubes::runAlgorithm(double isoValue) {
@@ -49,7 +51,7 @@ void MarchingCubes::runAlgorithm(double isoValue) {
     computeInterpolatedVertices();
 
 // 运行 marching cubes 算法，marching 并逐个处理 cube
-#pragma omp parallel for
+#pragma omp parallel for collapse(4)
     for (int i = 0; i < dim[0] - 1; i++) {
         for (int j = 0; j < dim[1] - 1; j++) {
             for (int k = 0; k < dim[2] - 1; k++) {
@@ -342,6 +344,7 @@ void MarchingCubes::processCube(int i, int j, int k, int configurationIndex, con
 }
 
 void MarchingCubes::addTriangle(int i, int j, int k, std::vector<char> edges) {
+#pragma omp parallel for
     for (int l = 0; l < edges.size(); l += 3) {
         int a = getCubeVertexIndex(i, j, k, edges[l]);
         int b = getCubeVertexIndex(i, j, k, edges[l + 1]);
@@ -352,9 +355,9 @@ void MarchingCubes::addTriangle(int i, int j, int k, std::vector<char> edges) {
         if (a == b || b == c || a == c) {
             assert(false);
         }
-        omp_set_lock(&lock);  //获得互斥器
+        omp_set_lock(&triangleLock);  //获得互斥器
         triangles.push_back({a, b, c});
-        omp_unset_lock(&lock);  //释放互斥器
+        omp_unset_lock(&triangleLock);  //释放互斥器
     }
 }
 
