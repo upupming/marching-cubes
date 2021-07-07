@@ -1,2 +1,0 @@
-data/cbct_sample_z=507_y=512_x=512.raw filter=lfs diff=lfs merge=lfs -text
-*.raw filter=lfs diff=lfs merge=lfs -text

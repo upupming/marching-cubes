@@ -5,3 +5,4 @@ marching-cubes-release-*.zip
 cmake-build*
 .idea
 *.obj
+*.raw
