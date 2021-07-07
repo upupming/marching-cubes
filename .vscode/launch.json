@@ -13,7 +13,7 @@
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}/build/Debug/",
       "environment": [],
-      "console": "integratedTerminal",
+      "console": "newExternalWindow",
       "preLaunchTask": "CMake Build Debug"
     },
     {
@@ -25,7 +25,7 @@
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}/build/Release/",
       "environment": [],
-      "console": "integratedTerminal",
+      "console": "newExternalWindow",
       "preLaunchTask": "CMake Build Release"
     }
   ]

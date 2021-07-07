@@ -1,5 +1,5 @@
-#ifndef MAINWIDGET_H
-#define MAINWIDGET_H
+#ifndef MeshViewWidget_H
+#define MeshViewWidget_H
 #include <QBasicTimer>
 #include <QMatrix4x4>
 #include <QOpenGLFunctions>
@@ -16,13 +16,13 @@
 
 class GeometryEngine;
 
-class MainWidget : public QOpenGLWidget, protected QOpenGLFunctions {
+class MeshViewWidget : public QOpenGLWidget, protected QOpenGLFunctions {
     Q_OBJECT
 
    public:
     using QOpenGLWidget::QOpenGLWidget;
-    ~MainWidget();
-    MainWidget(MarchingCubes *mc) : mc(mc){};
+    ~MeshViewWidget();
+    MeshViewWidget(MarchingCubes *mc) : mc(mc){};
 
    protected:
     void mousePressEvent(QMouseEvent *e) override;
@@ -51,4 +51,4 @@ class MainWidget : public QOpenGLWidget, protected QOpenGLFunctions {
     glm::vec3 eye = {0, 0, 3}, lookat = {0, 0, 0}, up = {0, 1, 0};
 };
 
-#endif  // MAINWIDGET_H
+#endif  // MeshViewWidget_H

@@ -4,8 +4,8 @@
 #include <array>
 #include <iostream>
 
-#include "mainwidget.h"
 #include "marching_cubes.h"
+#include "mesh_view_widget.h"
 #include "raw_reader.h"
 
 void testMarchingCubes() {
@@ -20,7 +20,7 @@ void testMarchingCubes() {
     mc->runAlgorithm(isoValue);
     // mc->saveObj("../../data/cbct_isoValue=" + std::to_string(isoValue) + ".obj");
 
-    MainWidget *widget = new MainWidget(mc);
+    MeshViewWidget *widget = new MeshViewWidget(mc);
     widget->show();
 }
 
@@ -31,8 +31,8 @@ int main(int argc, char *argv[]) {
     format.setDepthBufferSize(24);
     QSurfaceFormat::setDefaultFormat(format);
 
-    app.setApplicationName("cube");
-    app.setApplicationVersion("0.1");
+    app.setApplicationName("MarchingCubes, LEWINER 2003");
+    app.setApplicationVersion("1.0");
 
 #if _DEBUG
     std::cout << "Debug mode" << std::endl;

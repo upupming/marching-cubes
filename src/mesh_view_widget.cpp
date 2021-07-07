@@ -1,18 +1,18 @@
-#include "mainwidget.h"
+#include "mesh_view_widget.h"
 
 #include <QMouseEvent>
 #include <cmath>
 
 #include "trackball.h"
 
-MainWidget::~MainWidget() {
+MeshViewWidget::~MeshViewWidget() {
     makeCurrent();
     delete geometries;
     doneCurrent();
 }
 
 //! [0]
-void MainWidget::mousePressEvent(QMouseEvent *e) {
+void MeshViewWidget::mousePressEvent(QMouseEvent *e) {
     // Save mouse press position
     prevMouse = e->localPos();
     if (e->button() == Qt::MouseButton::LeftButton) {
@@ -25,7 +25,7 @@ void MainWidget::mousePressEvent(QMouseEvent *e) {
     }
 }
 
-void MainWidget::mouseReleaseEvent(QMouseEvent *e) {
+void MeshViewWidget::mouseReleaseEvent(QMouseEvent *e) {
     if (e->button() == Qt::MouseButton::LeftButton) {
         mouseLeftPressed = false;
     } else if (e->button() == Qt::MouseButton::RightButton) {
@@ -34,7 +34,7 @@ void MainWidget::mouseReleaseEvent(QMouseEvent *e) {
         mouseMiddlePressed = false;
     }
 }
-void MainWidget::mouseMoveEvent(QMouseEvent *e) {
+void MeshViewWidget::mouseMoveEvent(QMouseEvent *e) {
     float rotScale = 1.0f;
     float transScale = 2.0f;
 
@@ -67,7 +67,7 @@ void MainWidget::mouseMoveEvent(QMouseEvent *e) {
     update();
 }
 
-void MainWidget::initializeGL() {
+void MeshViewWidget::initializeGL() {
     initializeOpenGLFunctions();
 
     glClearColor(0, 0, 0, 1);
@@ -86,7 +86,7 @@ void MainWidget::initializeGL() {
 }
 
 //! [3]
-void MainWidget::initShaders() {
+void MeshViewWidget::initShaders() {
     // Compile vertex shader
     if (!program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/3.1.materials.vs"))
         close();
@@ -120,7 +120,7 @@ void MainWidget::initShaders() {
 //! [3]
 
 //! [5]
-void MainWidget::resizeGL(int w, int h) {
+void MeshViewWidget::resizeGL(int w, int h) {
     // Calculate aspect ratio
     qreal aspect = qreal(w) / qreal(h ? h : 1);
 
@@ -132,7 +132,7 @@ void MainWidget::resizeGL(int w, int h) {
 }
 //! [5]
 
-void MainWidget::paintGL() {
+void MeshViewWidget::paintGL() {
     if (!geometries) return;
 
     // Clear color and depth buffer
