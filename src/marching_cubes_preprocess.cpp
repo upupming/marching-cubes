@@ -9,8 +9,8 @@ void MarchingCubes::computeInterpolatedVertices() {
     for (int i = 0; i < dim[0]; i++) {
         for (int j = 0; j < dim[1]; j++) {
             for (int k = 0; k < dim[2]; k++) {
-                std::vector<double> cube(8);
-                std::vector<std::array<double, 3>> normal(8);
+                std::vector<float> cube(8);
+                std::vector<std::array<float, 3>> normal(8);
                 if (i % 100 == 0 && j == 0 && k == 0)
                     std::cout << "computeInterpolatedVertices: " << i << " " << j << " " << k << std::endl;
                 cube[0] = getData(i, j, k);
@@ -25,8 +25,8 @@ void MarchingCubes::computeInterpolatedVertices() {
                     normal[1] = normal[0];
                 }
                 if (cube[0] * cube[1] < 0) {
-                    double ratio = cube[0] / (cube[0] - cube[1]);
-                    std::array<double, 3> normal_interpolated;
+                    float ratio = cube[0] / (cube[0] - cube[1]);
+                    std::array<float, 3> normal_interpolated;
                     for (int idx = 0; idx < 3; idx++) {
                         normal_interpolated[idx] = normal[0][idx] + ratio * (normal[1][idx] - normal[0][idx]);
                     }
@@ -38,6 +38,10 @@ void MarchingCubes::computeInterpolatedVertices() {
 
                     omp_set_lock(&vertexLock);  //获得互斥器
                     vertices.push_back(v);
+                    bmin[0] = std::min(bmin[0], v.x), bmax[0] = std::max(bmax[0], v.x);
+                    bmin[1] = std::min(bmin[1], v.y), bmax[1] = std::max(bmax[1], v.y);
+                    bmin[2] = std::min(bmin[2], v.z), bmax[2] = std::max(bmax[2], v.z);
+
                     xDirectionInterpolatedVertexIndex[i][j][k] = vertices.size() - 1;
                     omp_unset_lock(&vertexLock);  //释放互斥器
                 }
@@ -51,8 +55,8 @@ void MarchingCubes::computeInterpolatedVertices() {
                     normal[3] = normal[0];
                 }
                 if (cube[0] * cube[3] < 0) {
-                    double ratio = cube[0] / (cube[0] - cube[3]);
-                    std::array<double, 3> normal_interpolated;
+                    float ratio = cube[0] / (cube[0] - cube[3]);
+                    std::array<float, 3> normal_interpolated;
                     for (int idx = 0; idx < 3; idx++) {
                         normal_interpolated[idx] = normal[0][idx] + ratio * (normal[3][idx] - normal[0][idx]);
                     }
@@ -76,8 +80,8 @@ void MarchingCubes::computeInterpolatedVertices() {
                     normal[4] = normal[0];
                 }
                 if (cube[0] * cube[4] < 0) {
-                    double ratio = cube[0] / (cube[0] - cube[4]);
-                    std::array<double, 3> normal_interpolated;
+                    float ratio = cube[0] / (cube[0] - cube[4]);
+                    std::array<float, 3> normal_interpolated;
                     for (int idx = 0; idx < 3; idx++) {
                         normal_interpolated[idx] = normal[0][idx] + ratio * (normal[4][idx] - normal[0][idx]);
                     }
@@ -96,25 +100,25 @@ void MarchingCubes::computeInterpolatedVertices() {
     }
 }
 
-double MarchingCubes::getXGradient(int i, int j, int k) {
+float MarchingCubes::getXGradient(int i, int j, int k) {
     if (i == 0) return (getData(i + 1, j, k) - getData(i, j, k)) / spacing[0];
     if (i == dim[0] - 1) return (getData(i, j, k) - getData(i - 1, j, k)) / spacing[0];
     return (getData(i + 1, j, k) - getData(i - 1, j, k)) / (2 * spacing[0]);
 }
 
-double MarchingCubes::getYGradient(int i, int j, int k) {
+float MarchingCubes::getYGradient(int i, int j, int k) {
     if (j == 0) return (getData(i, j + 1, k) - getData(i, j, k)) / spacing[1];
     if (j == dim[1] - 1) return getData(i, j, k) - getData(i, j - 1, k) / spacing[1];
     return (getData(i, j + 1, k) - getData(i, j - 1, k)) / (2 * spacing[1]);
 }
 
-double MarchingCubes::getZGradient(int i, int j, int k) {
+float MarchingCubes::getZGradient(int i, int j, int k) {
     if (k == 0) return (getData(i, j, k + 1) - getData(i, j, k)) / spacing[2];
     if (k == dim[2] - 1) return (getData(i, j, k) - getData(i, j, k - 1)) / spacing[2];
     return (getData(i, j, k + 1) - getData(i, j, k - 1)) / (2 * spacing[2]);
 }
 
-std::array<double, 3> MarchingCubes::getNormal(int i, int j, int k) {
+std::array<float, 3> MarchingCubes::getNormal(int i, int j, int k) {
     int d = reverseGradientDirection ? -1 : 1;
     return {getXGradient(i, j, k) * d, getYGradient(i, j, k) * d, getZGradient(i, j, k) * d};
 }

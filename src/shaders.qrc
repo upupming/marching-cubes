@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>3.1.materials.vs</file>
+        <file>3.1.materials.fs</file>
+    </qresource>
+</RCC>

@@ -11,10 +11,10 @@ Marching Cubes 算法实现
 #include <vector>
 struct Vertex {
     // 顶点坐标
-    double x, y, z;
+    float x, y, z;
     // 法向量
-    double nx, ny, nz;
-    Vertex(double x, double y, double z, double nx, double ny, int nz) : x(x), y(y), z(z), nx(nx), ny(ny), nz(nz) {
+    float nx, ny, nz;
+    Vertex(float x, float y, float z, float nx, float ny, int nz) : x(x), y(y), z(z), nx(nx), ny(ny), nz(nz) {
         normalizeNormal();
     }
     Vertex& operator+=(const Vertex& rhs) {
@@ -28,37 +28,43 @@ struct Vertex {
         return *this;
     }
     void normalizeNormal() {
-        double len2 = nx * nx + ny * ny + nz * nz;
-        double len = sqrt(len2);
+        float len2 = nx * nx + ny * ny + nz * nz;
+        float len = sqrt(len2);
         nx /= len, ny /= len, nz /= len;
     }
 };
 
 class MarchingCubes {
    public:
-    MarchingCubes(const unsigned short* data, std::array<int, 3> dim, std::array<double, 3> spacing, bool reverseGradientDirection = false);
+    MarchingCubes(const unsigned short* data, std::array<int, 3> dim, std::array<float, 3> spacing, bool reverseGradientDirection = false);
     MarchingCubes::~MarchingCubes();
     /**
     * 运行算法，生成顶点（带法线）、三角形
     * \param isoValue 等值面大小
     **/
-    void runAlgorithm(double isoValue);
-    inline std::vector<Vertex> getVertices() { return vertices; }
-    inline std::vector<std::array<int, 3>> getTriangles() { return triangles; }
+    void runAlgorithm(float isoValue);
+    // bounding box
+    float bmax[3], bmin[3], maxExtent;
+    inline const std::vector<Vertex>& getVertices() const {
+        return vertices;
+    }
+    inline const std::vector<std::array<int, 3>>& getTriangles() const {
+        return triangles;
+    }
     void saveObj(std::string filename);
 
    private:
     omp_lock_t vertexLock, triangleLock;
     const unsigned short* data;
     std::array<int, 3> dim;
-    std::array<double, 3> spacing{1, 1, 1};
+    std::array<float, 3> spacing{1, 1, 1};
     bool reverseGradientDirection = false;
     std::vector<Vertex> vertices;
     // 所有的三角形，其中每个三角形是 3 个 Vertex 在 vertices 中的索引下标
     std::vector<std::array<int, 3>> triangles;
-    double isoValue;
-    inline double getData(int i, int j, int k) {
-        double val = data[i * dim[1] * dim[2] + j * dim[2] + k] - isoValue;
+    float isoValue;
+    inline float getData(int i, int j, int k) {
+        float val = data[i * dim[1] * dim[2] + j * dim[2] + k] - isoValue;
         // 如果返回 0 的话，后面计算边的插值点的时候会出问题（要么插值就是 cube 顶点，要么不插值，都是不对的，前者会造成三角形塌陷成两个点，后者会造成没有顶点用来构成三角形）
         if (abs(val) < FLT_EPSILON) {
             val = FLT_EPSILON;
@@ -84,15 +90,15 @@ class MarchingCubes {
     int getCubeVertexIndex(int i, int j, int k, int edgeIdx);
 
     // 梯度方向就是法向量方向
-    inline double getXGradient(int i, int j, int k);
-    inline double getYGradient(int i, int j, int k);
-    inline double getZGradient(int i, int j, int k);
-    inline std::array<double, 3> getNormal(int i, int j, int k);
+    inline float getXGradient(int i, int j, int k);
+    inline float getYGradient(int i, int j, int k);
+    inline float getZGradient(int i, int j, int k);
+    inline std::array<float, 3> getNormal(int i, int j, int k);
 
-    void processCube(int i, int j, int k, int configurationIndex, const std::vector<double>& cube);
+    void processCube(int i, int j, int k, int configurationIndex, const std::vector<float>& cube);
     // 根据 tiling 数组里面的需要连接的边，连接对应的三角形
     void addTriangle(int i, int j, int k, std::vector<char> edges);
-    double testFace(int i, int j, int k, const std::vector<double>& cube, int f);
+    float testFace(int i, int j, int k, const std::vector<float>& cube, int f);
     /**
      * \brief 测试内部
      * \param caseIdx 论文中规定的 0-14 种 case
@@ -100,5 +106,5 @@ class MarchingCubes {
      * e inside one particular sequence of the tiling table，主要还是关心这个值得正负性，在结果上会乘上这个
      * \param edgeIdx 表示这条边的两个点当做两个 A0 和 A1 点
      */
-    double testInterior(int i, int j, int k, const std::vector<double>& cube, int caseIdx, int alongEdgeIdx, int edgeIdx);
+    float testInterior(int i, int j, int k, const std::vector<float>& cube, int caseIdx, int alongEdgeIdx, int edgeIdx);
 };

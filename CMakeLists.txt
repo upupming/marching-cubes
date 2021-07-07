@@ -17,14 +17,13 @@ project(${PROJECT} LANGUAGES CXX)
 
 list(APPEND CMAKE_PREFIX_PATH "C:/Qt/5.15.2/msvc2019_64")
 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick Concurrent REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Widgets Concurrent REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR}QuickCompiler)
 message(STATUS "QT_FOUND ${QT_FOUND}")
 message(STATUS "QT_CONFIG ${QT_CONFIG}")
 message(STATUS "QT_CONSIDERED_CONFIGS ${QT_CONSIDERED_CONFIGS}")
 message(STATUS "QT_CONSIDERED_VERSIONS ${QT_CONSIDERED_VERSIONS}")
-message(STATUS "Qt5Qml_INCLUDE_DIRS ${Qt5Qml_INCLUDE_DIRS}")
 message(STATUS "QT_VERSION_MAJOR ${QT_VERSION_MAJOR}")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -79,10 +78,12 @@ else()
     endif()
 endif()
 
-target_compile_definitions(${PROJECT}
-  PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
-target_link_libraries(${PROJECT}
-  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick Qt${QT_VERSION_MAJOR}::Concurrent)
+target_link_libraries(
+    ${PROJECT} PRIVATE
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Concurrent)
 
 target_include_directories(${PROJECT}
     PRIVATE
@@ -90,3 +91,9 @@ target_include_directories(${PROJECT}
 
 find_package(OpenMP REQUIRED)
 target_link_libraries(${PROJECT} PRIVATE OpenMP::OpenMP_CXX)
+
+find_package(glm REQUIRED)
+target_link_libraries(${PROJECT} PRIVATE glm::glm)
+
+find_package(OpenGL REQUIRED)
+target_link_libraries(${PROJECT} PRIVATE ${OPENGL_LIBRARIES})

@@ -7,7 +7,7 @@
 
 #include "LookUpTable.h"
 
-MarchingCubes::MarchingCubes(const unsigned short* data, std::array<int, 3> dim, std::array<double, 3> spacing, bool reverseGradientDirection) {
+MarchingCubes::MarchingCubes(const unsigned short* data, std::array<int, 3> dim, std::array<float, 3> spacing, bool reverseGradientDirection) {
     this->data = data;
     this->dim = dim;
     this->spacing = spacing;
@@ -43,8 +43,11 @@ MarchingCubes::~MarchingCubes() {
     omp_destroy_lock(&triangleLock);
 }
 
-void MarchingCubes::runAlgorithm(double isoValue) {
+void MarchingCubes::runAlgorithm(float isoValue) {
     clock_t time = clock();
+
+    bmin[0] = bmin[1] = bmin[2] = std::numeric_limits<float>::max();
+    bmax[0] = bmax[1] = bmax[2] = -std::numeric_limits<float>::max();
 
     this->isoValue = isoValue;
     // 计算所有插值顶点
@@ -55,7 +58,7 @@ void MarchingCubes::runAlgorithm(double isoValue) {
     for (int i = 0; i < dim[0] - 1; i++) {
         for (int j = 0; j < dim[1] - 1; j++) {
             for (int k = 0; k < dim[2] - 1; k++) {
-                std::vector<double> cube(8);
+                std::vector<float> cube(8);
                 // 计算 configuration 编号
                 int configurationIndex = 0;
                 for (int l = 0; l < 8; l++) {
@@ -75,10 +78,18 @@ void MarchingCubes::runAlgorithm(double isoValue) {
         }
     }
 
-    printf("Marching Cubes ran in %lf secs.\n", (double)(clock() - time) / CLOCKS_PER_SEC);
+    maxExtent = 0.5 * (bmax[0] - bmin[0]);
+    if (maxExtent < 0.5 * (bmax[1] - bmin[1])) {
+        maxExtent = 0.5 * (bmax[1] - bmin[1]);
+    }
+    if (maxExtent < 0.5 * (bmax[2] - bmin[2])) {
+        maxExtent = 0.5 * (bmax[2] - bmin[2]);
+    }
+
+    printf("Marching Cubes ran in %lf secs.\n", (float)(clock() - time) / CLOCKS_PER_SEC);
 }
 
-void MarchingCubes::processCube(int i, int j, int k, int configurationIndex, const std::vector<double>& cube) {
+void MarchingCubes::processCube(int i, int j, int k, int configurationIndex, const std::vector<float>& cube) {
     // 注意对于有一些为了解决内部歧义的情况（例如 6.1.2），需要在 cube 正中间插值算一个顶点，这个顶点的标号为 12
     // 原作者是主动创建点 12，我是放在了 `getCubeVertexIndex` 函数里面如果需要才创建，稍微简洁一些
     int caseIdx = cases[configurationIndex][0];
@@ -361,7 +372,7 @@ void MarchingCubes::addTriangle(int i, int j, int k, std::vector<char> edges) {
     }
 }
 
-double MarchingCubes::testFace(int i, int j, int k, const std::vector<double>& cube, int f) {
+float MarchingCubes::testFace(int i, int j, int k, const std::vector<float>& cube, int f) {
     // 渐近线测试所用的四个参数
     int A, B, C, D;
     // 注意有的面需要将结果取反，这个时候 f 是负数
@@ -398,8 +409,8 @@ double MarchingCubes::testFace(int i, int j, int k, const std::vector<double>& c
     return f * cube[A] * (cube[A] * cube[C] - cube[B] * cube[D]);
 }
 
-double MarchingCubes::testInterior(int i, int j, int k, const std::vector<double>& cube, int caseIdx, int alongEdgeIdx, int edgeIdx) {
-    double t, At = 0, Bt = 0, Ct = 0, Dt = 0, a, b;
+float MarchingCubes::testInterior(int i, int j, int k, const std::vector<float>& cube, int caseIdx, int alongEdgeIdx, int edgeIdx) {
+    float t, At = 0, Bt = 0, Ct = 0, Dt = 0, a, b;
     switch (caseIdx) {
         // 强对称性，直接计算
         case 4:

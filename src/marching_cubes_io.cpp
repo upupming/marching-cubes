@@ -35,5 +35,5 @@ void MarchingCubes::saveObj(std::string filename) {
     objFile << s;
     objFile.close();
 
-    printf("OBJ file saved in %lf secs.\n", (double)(clock() - time) / CLOCKS_PER_SEC);
+    printf("OBJ file saved in %lf secs.\n", (float)(clock() - time) / CLOCKS_PER_SEC);
 }

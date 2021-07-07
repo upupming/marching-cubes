@@ -80,7 +80,17 @@
     "future": "cpp",
     "iostream": "cpp",
     "random": "cpp",
-    "cassert": "cpp"
+    "cassert": "cpp",
+    "qopenglfunctions": "cpp",
+    "qopenglwidget": "cpp",
+    "cstdarg": "cpp",
+    "iomanip": "cpp",
+    "locale": "cpp",
+    "xlocbuf": "cpp",
+    "xlocmes": "cpp",
+    "xlocmon": "cpp",
+    "xloctime": "cpp",
+    "qopenglshaderprogram": "cpp"
   },
   "cmake.configureOnOpen": false,
   "cmake.configureOnEdit": false,
