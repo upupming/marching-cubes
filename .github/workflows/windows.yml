@@ -54,13 +54,24 @@ jobs:
       - name: Get the version
         id: get_version
         shell: bash
-        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
-      - name: Checking out sources
-        shell: powershell
         run: |
+          echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
           mkdir ${{ env.srcDir }}
-          git clone --recurse-submodules git@github.com:upupming/marching-cubes.git ${{ env.srcDir }}
           cd ${{ env.srcDir }}
+
+      - uses: actions/checkout@v2
+        with:
+          repository: upupming/marching-cubes
+          submodules: recursive
+
+      - name: Copy sources
+        shell: bash
+        run: |
+          cp -r $GITHUB_WORKSPACE ${{ env.srcDir }}
+          ls ${{ env.srcDir }}/
+          ls ${{ env.srcDir }}/.git
+          ls ${{ env.srcDir }}/vcpkg
+
       - name: Install Python 3.7 version
         uses: actions/setup-python@v1
         with:
