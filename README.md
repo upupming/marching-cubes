@@ -37,9 +37,15 @@
 - OMP 加速之后算法需要 9s 左右，但是文件写入无法加速，21s 左右。
     - isoValue 800, 顶点数 4,256,478, 面数 8,165,228
 
+- `assert(buf.bind())` 这样的写法是有问题的，因为 `Release` 模式下会忽略所有的 `assert` 语句，导致 bind 不执行，最终 `glDrawElements` 找不到 buffer 就报内存错误了。
+- 将原有的三维数组改为 `unordered_ma`
+
 细节展示：
 
 ![](img/details.png)
+![](img/result.png)
+![](img/memory-eaten.png)
+
 
 膜拜这位论文作者，写了 2000 多行的 LookUpTable，而且每一个都是要考虑对应的细节的，感觉每种 case 如果要自己想真的是太难了。
 

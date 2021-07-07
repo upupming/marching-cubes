@@ -42,7 +42,7 @@ void MarchingCubes::computeInterpolatedVertices() {
                     bmin[1] = std::min(bmin[1], v.y), bmax[1] = std::max(bmax[1], v.y);
                     bmin[2] = std::min(bmin[2], v.z), bmax[2] = std::max(bmax[2], v.z);
 
-                    xDirectionInterpolatedVertexIndex[i][j][k] = vertices.size() - 1;
+                    xDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k)] = vertices.size() - 1;
                     omp_unset_lock(&vertexLock);  //释放互斥器
                 }
 
@@ -67,7 +67,7 @@ void MarchingCubes::computeInterpolatedVertices() {
                         normal_interpolated[2]);
                     omp_set_lock(&vertexLock);  //获得互斥器
                     vertices.push_back(v);
-                    yDirectionInterpolatedVertexIndex[i][j][k] = vertices.size() - 1;
+                    yDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k)] = vertices.size() - 1;
                     omp_unset_lock(&vertexLock);  //释放互斥器
                 }
 
@@ -92,7 +92,7 @@ void MarchingCubes::computeInterpolatedVertices() {
                         normal_interpolated[2]);
                     omp_set_lock(&vertexLock);  //获得互斥器
                     vertices.push_back(v);
-                    zDirectionInterpolatedVertexIndex[i][j][k] = vertices.size() - 1;
+                    zDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k)] = vertices.size() - 1;
                     omp_unset_lock(&vertexLock);  //释放互斥器
                 }
             }
@@ -126,35 +126,35 @@ std::array<float, 3> MarchingCubes::getNormal(int i, int j, int k) {
 int MarchingCubes::getCubeVertexIndex(int i, int j, int k, int edgeIdx) {
     switch (edgeIdx) {
         case 0:
-            return xDirectionInterpolatedVertexIndex[i][j][k];
+            return xDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k)];
         case 1:
-            return yDirectionInterpolatedVertexIndex[i + 1][j][k];
+            return yDirectionInterpolatedVertexIndex[glm::ivec3(i + 1, j, k)];
         case 2:
-            return xDirectionInterpolatedVertexIndex[i][j + 1][k];
+            return xDirectionInterpolatedVertexIndex[glm::ivec3(i, j + 1, k)];
         case 3:
-            return yDirectionInterpolatedVertexIndex[i][j][k];
+            return yDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k)];
         case 4:
-            return xDirectionInterpolatedVertexIndex[i][j][k + 1];
+            return xDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k + 1)];
         case 5:
-            return yDirectionInterpolatedVertexIndex[i + 1][j][k + 1];
+            return yDirectionInterpolatedVertexIndex[glm::ivec3(i + 1, j, k + 1)];
         case 6:
-            return xDirectionInterpolatedVertexIndex[i][j + 1][k + 1];
+            return xDirectionInterpolatedVertexIndex[glm::ivec3(i, j + 1, k + 1)];
         case 7:
-            return yDirectionInterpolatedVertexIndex[i][j][k + 1];
+            return yDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k + 1)];
         case 8:
-            return zDirectionInterpolatedVertexIndex[i][j][k];
+            return zDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k)];
         case 9:
-            return zDirectionInterpolatedVertexIndex[i + 1][j][k];
+            return zDirectionInterpolatedVertexIndex[glm::ivec3(i + 1, j, k)];
         case 10:
-            return zDirectionInterpolatedVertexIndex[i + 1][j + 1][k];
+            return zDirectionInterpolatedVertexIndex[glm::ivec3(i + 1, j + 1, k)];
         case 11:
-            return zDirectionInterpolatedVertexIndex[i][j + 1][k];
+            return zDirectionInterpolatedVertexIndex[glm::ivec3(i, j + 1, k)];
         case 12:
             // 如果之前没有创建过，在这里创建这个 12 的点
-            if (centerInterpolatedVertexIndex[i][j][k] == -1) {
+            if (!centerInterpolatedVertexIndex.count(glm::ivec3(i, j, k))) {
                 addCenterVertex(i, j, k);
             }
-            return centerInterpolatedVertexIndex[i][j][k];
+            return centerInterpolatedVertexIndex[glm::ivec3(i, j, k)];
     }
     std::cerr << "wrong edgeIdx: " << edgeIdx << std::endl;
     assert(false);
@@ -168,8 +168,8 @@ void MarchingCubes::addCenterVertex(int i, int j, int k) {
     // 4 条 x 方向的边
     for (int s = 0; s < 2; s++) {
         for (int t = 0; t < 2; t++) {
-            auto vid = xDirectionInterpolatedVertexIndex[i][j + s][k + t];
-            if (vid != -1) {
+            if (xDirectionInterpolatedVertexIndex.count(glm::ivec3(i, j + s, k + t))) {
+                auto vid = xDirectionInterpolatedVertexIndex[glm::ivec3(i, j + s, k + t)];
                 center += vertices[vid];
                 cnt++;
             }
@@ -178,8 +178,8 @@ void MarchingCubes::addCenterVertex(int i, int j, int k) {
     // 4 条 y 方向的边
     for (int s = 0; s < 2; s++) {
         for (int t = 0; t < 2; t++) {
-            auto vid = yDirectionInterpolatedVertexIndex[i + s][j][k + t];
-            if (vid != -1) {
+            if (yDirectionInterpolatedVertexIndex.count(glm::ivec3(i + s, j, k + t))) {
+                auto vid = yDirectionInterpolatedVertexIndex[glm::ivec3(i + s, j, k + t)];
                 center += vertices[vid];
                 cnt++;
             }
@@ -188,8 +188,8 @@ void MarchingCubes::addCenterVertex(int i, int j, int k) {
     // 4 条 z 方向的边
     for (int s = 0; s < 2; s++) {
         for (int t = 0; t < 2; t++) {
-            auto vid = zDirectionInterpolatedVertexIndex[i + s][j + t][k];
-            if (vid != -1) {
+            if (zDirectionInterpolatedVertexIndex.count(glm::ivec3(i + s, j + t, k))) {
+                auto vid = zDirectionInterpolatedVertexIndex[glm::ivec3(i + s, j + t, k)];
                 center += vertices[vid];
                 cnt++;
             }
@@ -204,6 +204,6 @@ void MarchingCubes::addCenterVertex(int i, int j, int k) {
     center.normalizeNormal();
     omp_set_lock(&vertexLock);  //获得互斥器
     vertices.push_back(center);
-    centerInterpolatedVertexIndex[i][j][k] = vertices.size() - 1;
+    centerInterpolatedVertexIndex[glm::ivec3(i, j, k)] = vertices.size() - 1;
     omp_unset_lock(&vertexLock);  //释放互斥器
 }

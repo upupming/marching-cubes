@@ -14,28 +14,6 @@ MarchingCubes::MarchingCubes(const unsigned short* data, std::array<int, 3> dim,
     this->reverseGradientDirection = reverseGradientDirection;
     omp_init_lock(&vertexLock);
     omp_init_lock(&triangleLock);
-
-    // 初始为 -1 表示没有插值
-    xDirectionInterpolatedVertexIndex.resize(
-        dim[0],
-        std::vector<std::vector<int>>(
-            dim[1],
-            std::vector<int>(dim[2], -1)));
-    yDirectionInterpolatedVertexIndex.resize(
-        dim[0],
-        std::vector<std::vector<int>>(
-            dim[1],
-            std::vector<int>(dim[2], -1)));
-    zDirectionInterpolatedVertexIndex.resize(
-        dim[0],
-        std::vector<std::vector<int>>(
-            dim[1],
-            std::vector<int>(dim[2], -1)));
-    centerInterpolatedVertexIndex.resize(
-        dim[0],
-        std::vector<std::vector<int>>(
-            dim[1],
-            std::vector<int>(dim[2], -1)));
 }
 
 MarchingCubes::~MarchingCubes() {
@@ -90,6 +68,9 @@ void MarchingCubes::runAlgorithm(float isoValue) {
 }
 
 void MarchingCubes::processCube(int i, int j, int k, int configurationIndex, const std::vector<float>& cube) {
+    if (i % 100 == 0 && j == 0 && k == 0)
+        std::cout << "processCube: " << i << " " << j << " " << k << std::endl;
+
     // 注意对于有一些为了解决内部歧义的情况（例如 6.1.2），需要在 cube 正中间插值算一个顶点，这个顶点的标号为 12
     // 原作者是主动创建点 12，我是放在了 `getCubeVertexIndex` 函数里面如果需要才创建，稍微简洁一些
     int caseIdx = cases[configurationIndex][0];

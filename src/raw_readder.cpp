@@ -1,5 +1,6 @@
-﻿#include <QDebug>
+﻿#include <cassert>
 #include <fstream>
+#include <iostream>
 
 #include "raw_reader.h"
 
@@ -17,9 +18,9 @@ RawReader::RawReader(std::string filename, const int Z, const int Y, const int X
         file.read((char *)m_data, size);
         file.close();
 
-        qDebug() << "the entire file content is read";
+        std::cout << "the entire file content is read" << std::endl;
     } else
-        qDebug() << "Unable to open file";
+        std::cout << "Unable to open file" << std::endl;
 }
 
 RawReader::~RawReader() {

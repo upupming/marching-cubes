@@ -31,9 +31,13 @@ GeometryEngine::~GeometryEngine() {
 void GeometryEngine::initCubeGeometry() {
     //! [1]
     // Transfer vertex data to VBO 0
-    assert(arrayBuf.bind());
+    if (!arrayBuf.bind()) {
+        std::cout << "arrayBuf bind failed" << std::endl;
+    }
     arrayBuf.allocate(mc->getVertices().data(), mc->getVertices().size() * sizeof(Vertex));
-    assert(indexBuf.bind());
+    if (!indexBuf.bind()) {
+        std::cout << "indexBuf bind failed" << std::endl;
+    }
     indexBuf.allocate(mc->getTriangles().data(), mc->getTriangles().size() * sizeof(int) * 3);
     //! [1]
 }
@@ -41,8 +45,12 @@ void GeometryEngine::initCubeGeometry() {
 //! [2]
 void GeometryEngine::drawCubeGeometry(QOpenGLShaderProgram* program) {
     // Tell OpenGL which VBOs to use
-    assert(arrayBuf.bind());
-    assert(indexBuf.bind());
+    if (!arrayBuf.bind()) {
+        std::cout << "arrayBuf bind failed" << std::endl;
+    }
+    if (!indexBuf.bind()) {
+        std::cout << "indexBuf bind failed" << std::endl;
+    }
 
     // Tell OpenGL programmable pipeline how to locate vertex position data
     int vertexLocation = program->attributeLocation("a_position");

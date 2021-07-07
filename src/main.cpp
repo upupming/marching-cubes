@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QMainWindow>
 #include <QtConcurrent>
 #include <array>
 #include <iostream>
@@ -9,7 +10,7 @@
 
 void testMarchingCubes() {
     const int Z = 507, Y = 512, X = 512;
-    RawReader rawReader("./data/cbct_sample_z=507_y=512_x=512.raw", Z, Y, X);
+    RawReader rawReader("../../data/cbct_sample_z=507_y=512_x=512.raw", Z, Y, X);
     const unsigned short *data = rawReader.data();
 
     std::array<int, 3> dim{Z, Y, X};
@@ -17,7 +18,7 @@ void testMarchingCubes() {
     float isoValue = 800;
     MarchingCubes *mc = new MarchingCubes(data, dim, spacing, true);
     mc->runAlgorithm(isoValue);
-    mc->saveObj("./data/cbct_isoValue=" + std::to_string(isoValue) + ".obj");
+    // mc->saveObj("../../data/cbct_isoValue=" + std::to_string(isoValue) + ".obj");
 
     MainWidget *widget = new MainWidget(mc);
     widget->show();

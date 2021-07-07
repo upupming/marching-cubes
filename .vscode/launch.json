@@ -11,7 +11,7 @@
       "program": "${workspaceFolder}/build/Debug/marching-cubes.exe",
       "args": [],
       "stopAtEntry": false,
-      "cwd": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}/build/Debug/",
       "environment": [],
       "console": "integratedTerminal",
       "preLaunchTask": "CMake Build Debug"
@@ -23,7 +23,7 @@
       "program": "${workspaceFolder}/build/Release/marching-cubes.exe",
       "args": [],
       "stopAtEntry": false,
-      "cwd": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}/build/Release/",
       "environment": [],
       "console": "integratedTerminal",
       "preLaunchTask": "CMake Build Release"

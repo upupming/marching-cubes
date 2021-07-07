@@ -90,7 +90,8 @@
     "xlocmes": "cpp",
     "xlocmon": "cpp",
     "xloctime": "cpp",
-    "qopenglshaderprogram": "cpp"
+    "qopenglshaderprogram": "cpp",
+    "qmainwindow": "cpp"
   },
   "cmake.configureOnOpen": false,
   "cmake.configureOnEdit": false,

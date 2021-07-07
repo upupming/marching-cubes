@@ -6,8 +6,11 @@ Marching Cubes 算法实现
 #include <omp.h>
 
 #include <array>
+#include <glm/glm.hpp>
+#include <glm/gtx/hash.hpp>
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 struct Vertex {
     // 顶点坐标
@@ -79,7 +82,7 @@ class MarchingCubes {
     // y 方向又叫 longitudinal 方向
     // z 方向又叫 vertical 方向
     // 对于有一些为了解决内部歧义的情况（例如 6.1.2），需要在 cube 正中间插值算一个顶点，这个顶点的标号为 12，存在 centerInterpolatedVertexIndex 里面，由于并不是所有 cube 都有 12，因此在 processCube 实际用到的时候才去添加
-    std::vector<std::vector<std::vector<int>>> xDirectionInterpolatedVertexIndex, yDirectionInterpolatedVertexIndex, zDirectionInterpolatedVertexIndex,
+    std::unordered_map<glm::ivec3, int> xDirectionInterpolatedVertexIndex, yDirectionInterpolatedVertexIndex, zDirectionInterpolatedVertexIndex,
         centerInterpolatedVertexIndex;
     void computeInterpolatedVertices();
     /**
