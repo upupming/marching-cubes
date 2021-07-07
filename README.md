@@ -26,6 +26,10 @@
 
 需要注意的是，在生成规则里面，为了确保内部正确，有些情况需要在 cube 正中心生成一个点，这个点标号为 12。
 
+## 数据
+
+一份 CBCT 数据，在 [Release 中](https://github.com/upupming/marching-cubes/releases/tag/v0.0.1)下载并放入 [data](data) 文件夹下。
+
 ## 踩坑点
 
 - 梯度方向就是法向方向，按照公式默认的话法线指向的是增长最快的方向，对于 CBCT 来说，增长最快的方向是朝内的，所以会造成法线朝内绘制出来的 mesh 是灰色的，这个时候就需要使用 `reverseGradientDirection` 参数反向，对应 sklearn 的 `gradient=descending` 参数。

@@ -59,7 +59,7 @@ jobs:
         shell: powershell
         run: |
           mkdir ${{ env.srcDir }}
-          git clone --recurse-submodules https://github.com/upupming/marching-cubes.git ${{ env.srcDir }}
+          git clone --recurse-submodules git@github.com:upupming/marching-cubes.git ${{ env.srcDir }}
           cd ${{ env.srcDir }}
       - name: Install Python 3.7 version
         uses: actions/setup-python@v1
