@@ -91,7 +91,9 @@
     "xlocmon": "cpp",
     "xloctime": "cpp",
     "qopenglshaderprogram": "cpp",
-    "qmainwindow": "cpp"
+    "qmainwindow": "cpp",
+    "qtwidgets": "cpp",
+    "qtwidgetsdepends": "cpp"
   },
   "cmake.configureOnOpen": false,
   "cmake.configureOnEdit": false,

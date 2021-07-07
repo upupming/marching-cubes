@@ -4,6 +4,7 @@
 #include <array>
 #include <iostream>
 
+#include "main_window.h"
 #include "marching_cubes.h"
 #include "mesh_view_widget.h"
 #include "raw_reader.h"
@@ -31,8 +32,9 @@ int main(int argc, char *argv[]) {
     format.setDepthBufferSize(24);
     QSurfaceFormat::setDefaultFormat(format);
 
+    QCoreApplication::setOrganizationName("upupming");
     app.setApplicationName("MarchingCubes, LEWINER 2003");
-    app.setApplicationVersion("1.0");
+    app.setApplicationVersion(QT_VERSION_STR);
 
 #if _DEBUG
     std::cout << "Debug mode" << std::endl;
@@ -41,6 +43,8 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifndef QT_NO_OPENGL
+    MainWindow mainWin;
+    mainWin.show();
     testMarchingCubes();
     // QtConcurrent::run(testMarchingCubes);
 #else
