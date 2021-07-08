@@ -88,7 +88,7 @@ void MainWindow::runMarchingCubes(float isoValue) {
     RawReader rawReader("../../data/cbct_sample_z=507_y=512_x=512.raw", Z, Y, X);
     const unsigned short *data = rawReader.data();
 
-    std::array<int, 3> dim{5, Y, X};
+    std::array<int, 3> dim{Z, Y, X};
     std::array<float, 3> spacing{0.3, 0.3, 0.3};
     mc = new MarchingCubes(data, dim, spacing, true);
     mc->runAlgorithm(isoValue);
