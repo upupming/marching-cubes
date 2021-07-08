@@ -93,7 +93,8 @@
     "qopenglshaderprogram": "cpp",
     "qmainwindow": "cpp",
     "qtwidgets": "cpp",
-    "qtwidgetsdepends": "cpp"
+    "qtwidgetsdepends": "cpp",
+    "qopengltexture": "cpp"
   },
   "cmake.configureOnOpen": false,
   "cmake.configureOnEdit": false,

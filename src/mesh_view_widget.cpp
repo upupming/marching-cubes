@@ -5,13 +5,44 @@
 
 #include "trackball.h"
 
-MeshViewWidget::~MeshViewWidget() {
-    makeCurrent();
-    delete geometries;
-    doneCurrent();
+// https://www.codenong.com/cs106436180/
+static void GLClearError() {
+    while (glGetError() != GL_NO_ERROR)
+        ;
+}
+static void GLCheckError() {
+    while (GLenum error = glGetError()) {
+        std::cout << "OpenGL Error(" << error << ")" << std::endl;
+    }
 }
 
-//! [0]
+MeshViewWidget::MeshViewWidget(MarchingCubes *mc)
+    : mc(mc), indexBuf(QOpenGLBuffer::IndexBuffer) {
+    setMarchingCubes(mc);
+}
+
+MeshViewWidget::~MeshViewWidget() {
+    arrayBuf.destroy();
+    indexBuf.destroy();
+}
+
+void MeshViewWidget::setMarchingCubes(MarchingCubes *mc) {
+    if (this->mc == mc) return;
+    this->mc = mc;
+    if (mc != nullptr) {
+        makeCurrent();
+        if (!arrayBuf.bind()) {
+            std::cout << "arrayBuf bind failed" << std::endl;
+        }
+        arrayBuf.allocate(mc->getVertices().data(), mc->getVertices().size() * sizeof(Vertex));
+        if (!indexBuf.bind()) {
+            std::cout << "indexBuf bind failed" << std::endl;
+        }
+        indexBuf.allocate(mc->getTriangles().data(), mc->getTriangles().size() * sizeof(int) * 3);
+        doneCurrent();
+    }
+}
+
 void MeshViewWidget::mousePressEvent(QMouseEvent *e) {
     // Save mouse press position
     prevMouse = e->localPos();
@@ -74,15 +105,18 @@ void MeshViewWidget::initializeGL() {
 
     initShaders();
 
-    //! [2]
     // Enable depth buffer
     glEnable(GL_DEPTH_TEST);
 
-    // Enable back face culling
+    // Disable back face culling
     glDisable(GL_CULL_FACE);
-    //! [2]
 
-    geometries = new GeometryEngine(mc);
+    if (!arrayBuf.create()) {
+        std::cout << "arrayBuf create failed" << std::endl;
+    }
+    if (!indexBuf.create()) {
+        std::cout << "indexBuf create failed" << std::endl;
+    }
 }
 
 //! [3]
@@ -117,9 +151,7 @@ void MeshViewWidget::initShaders() {
     program.setUniformValue("material.specular", 0.5f, 0.5f, 0.5f);  // specular lighting doesn't have full effect on this object's material
     program.setUniformValue("material.shininess", 32.0f);
 }
-//! [3]
 
-//! [5]
 void MeshViewWidget::resizeGL(int w, int h) {
     // Calculate aspect ratio
     qreal aspect = qreal(w) / qreal(h ? h : 1);
@@ -130,15 +162,13 @@ void MeshViewWidget::resizeGL(int w, int h) {
     // Set perspective projection
     projection.perspective(fov, aspect, zNear, zFar);
 }
-//! [5]
 
 void MeshViewWidget::paintGL() {
-    if (!geometries) return;
+    if (!mc) return;
 
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //! [6]
     // Calculate model view transformation
     QMatrix4x4 model;
 
@@ -166,8 +196,27 @@ void MeshViewWidget::paintGL() {
     program.setUniformValue("mvp_matrix", projection * model);
     program.setUniformValue("viewPos", eye[0], eye[1], eye[2]);
 
-    //! [6]
+    // Tell OpenGL which VBOs to use
+    if (!arrayBuf.bind()) {
+        std::cout << "arrayBuf bind failed" << std::endl;
+    }
+    if (!indexBuf.bind()) {
+        std::cout << "indexBuf bind failed" << std::endl;
+    }
 
-    // Draw cube geometry
-    geometries->drawCubeGeometry(&program);
+    // Tell OpenGL programmable pipeline how to locate vertex position data
+    int vertexLocation = program.attributeLocation("a_position");
+    program.enableAttributeArray(vertexLocation);
+    program.setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(Vertex));
+
+    // Tell OpenGL programmable pipeline how to locate vertex normal
+    int normalLocation = program.attributeLocation("a_normal");
+    program.enableAttributeArray(normalLocation);
+    program.setAttributeBuffer(normalLocation, GL_FLOAT, sizeof(Vertex) / 2, 3, sizeof(Vertex));
+
+    // glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+    GLCheckError();
+    // type: Must be one of GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, or GL_UNSIGNED_INT.
+    glDrawElements(GL_TRIANGLES, mc->getTriangles().size() * 3, GL_UNSIGNED_INT, nullptr);
+    GLCheckError();
 }

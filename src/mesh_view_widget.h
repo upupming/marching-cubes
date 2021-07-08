@@ -2,6 +2,7 @@
 #define MeshViewWidget_H
 #include <QBasicTimer>
 #include <QMatrix4x4>
+#include <QOpenGLBuffer>
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
@@ -12,9 +13,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "geometryengine.h"
-
-class GeometryEngine;
+#include "marching_cubes.h"
 
 class MeshViewWidget : public QOpenGLWidget, protected QOpenGLFunctions {
     Q_OBJECT
@@ -22,7 +21,8 @@ class MeshViewWidget : public QOpenGLWidget, protected QOpenGLFunctions {
    public:
     using QOpenGLWidget::QOpenGLWidget;
     ~MeshViewWidget();
-    MeshViewWidget(MarchingCubes *mc) : mc(mc){};
+    MeshViewWidget(MarchingCubes *mc = nullptr);
+    void setMarchingCubes(MarchingCubes *mc);
 
    protected:
     void mousePressEvent(QMouseEvent *e) override;
@@ -36,9 +36,8 @@ class MeshViewWidget : public QOpenGLWidget, protected QOpenGLFunctions {
     void initShaders();
 
    private:
-    const MarchingCubes *mc;
+    MarchingCubes *mc = nullptr;
     QOpenGLShaderProgram program;
-    GeometryEngine *geometries = nullptr;
 
     QMatrix4x4 projection;
 
@@ -49,6 +48,9 @@ class MeshViewWidget : public QOpenGLWidget, protected QOpenGLFunctions {
     float curr_quat[4] = {0, 0, 0, 1};
     float prev_quat[4] = {0, 0, 0, 1};
     glm::vec3 eye = {0, 0, 3}, lookat = {0, 0, 0}, up = {0, 1, 0};
+
+    QOpenGLBuffer arrayBuf;
+    QOpenGLBuffer indexBuf;
 };
 
 #endif  // MeshViewWidget_H
