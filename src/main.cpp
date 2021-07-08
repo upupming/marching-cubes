@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 #ifndef QT_NO_OPENGL
     MainWindow mainWin;
     mainWin.show();
-    testMarchingCubes();
+    // testMarchingCubes();
     // QtConcurrent::run(testMarchingCubes);
 #else
     QLabel note("OpenGL Support required");

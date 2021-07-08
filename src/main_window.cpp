@@ -3,6 +3,17 @@
 #include <QtWidgets>
 MainWindow::MainWindow() {
     readSettings();
+    QVBoxLayout *vBoxLayout = new QVBoxLayout;
+    QWidget *mWidget = new QWidget;
+    QSlider *slider = new QSlider;
+    slider->setOrientation(Qt::Orientation::Horizontal);
+    slider->setFocusPolicy(Qt::StrongFocus);
+    slider->setTickPosition(QSlider::TicksBothSides);
+    slider->setTickInterval(10);
+    slider->setSingleStep(1);
+    vBoxLayout->addWidget(slider);
+    mWidget->setLayout(vBoxLayout);
+    setCentralWidget(mWidget);
 }
 
 void MainWindow::readSettings() {
