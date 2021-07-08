@@ -11,7 +11,7 @@ env:
   # Override github envs, for vcpkg action to work properly: https://github.com/lukka/run-vcpkg/blob/36477d05567caebad06ad53713dcbde226135205/dist/index.js#L4891
   GITHUB_WORKSPACE: C:/marching-cubes
   BUILD_SOURCESDIRECTORY: C:/marching-cubes
-  srcDir: C:/marching-cubes/
+  srcDir: C:/marching-cubes
   buildDir: C:/marching-cubes/build
 
 jobs:
