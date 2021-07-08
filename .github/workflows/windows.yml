@@ -67,7 +67,7 @@ jobs:
       - name: Copy sources
         shell: bash
         run: |
-          cp -r $GITHUB_WORKSPACE ${{ env.srcDir }}
+          cp -r $GITHUB_WORKSPACE/. ${{ env.srcDir }}
           ls ${{ env.srcDir }}/
           ls ${{ env.srcDir }}/.git
           ls ${{ env.srcDir }}/vcpkg
