@@ -308,7 +308,7 @@ void MarchingCubes::processCube(int i, int j, int k, int configurationIndex, con
             } else if (subconfig13Value <= 26) {
                 // 13.5
                 // 这个的 edgeIdx 比较特殊，是从 tiling13_5_1 里面拿的
-                if (testInterior(i, j, k, cube, caseIdx, test13[configurationIndexInCase][6], tiling13_5_1[configurationIndexInCase][subconfig13Value][0]) < 0) {
+                if (testInterior(i, j, k, cube, caseIdx, test13[configurationIndexInCase][6], tiling13_5_1[configurationIndexInCase][subconfig13Value - 23][0]) < 0) {
                     addTriangle(i, j, k, {tiling13_5_1[configurationIndexInCase][subconfig13Value - 23], tiling13_5_1[configurationIndexInCase][subconfig13Value - 23] + 6 * 3});
                 } else {
                     addTriangle(i, j, k, {tiling13_5_2[configurationIndexInCase][subconfig13Value - 23], tiling13_5_2[configurationIndexInCase][subconfig13Value - 23] + 10 * 3});
