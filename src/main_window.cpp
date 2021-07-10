@@ -45,10 +45,14 @@ MainWindow::MainWindow(bool autoTest) : autoTest(autoTest) {
 
 MainWindow::~MainWindow() {
     delete rawReader;
+    delete mc;
 }
 
 void MainWindow::readData() {
     rawReader = new RawReader("../../data/cbct_sample_z=507_y=512_x=512.raw", Z, Y, X);
+    std::array<int, 3> dim{Z, Y, X};
+    std::array<float, 3> spacing{0.3f, 0.3f, 0.3f};
+    mc = new MarchingCubes(rawReader->data(), dim, spacing, true);
 }
 
 // 必须在 GUI 线程里面更新 OpenGL 不然会报错，因为 context 不同了
@@ -106,9 +110,6 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 void MainWindow::runMarchingCubes(float isoValue) {
     readDataProcess.waitForFinished();
 
-    std::array<int, 3> dim{Z, Y, X};
-    std::array<float, 3> spacing{0.3f, 0.3f, 0.3f};
-    mc = new MarchingCubes(rawReader->data(), dim, spacing, true);
     mc->runAlgorithm(isoValue);
 
     emit marchingCubesFinished();
