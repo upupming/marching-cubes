@@ -73,8 +73,10 @@ void MainWindow::updateMeshView() {
 void MainWindow::updateIsoValue(float isoValue) {
     std::cout << "void MainWindow::updateIsoValue(float isoValue): " << isoValue << std::endl;
     if (currentIsoValue == isoValue) return;
-    if (mcProcess.isStarted()) {
-        mcProcess.cancel();
+    // 正在运行中的话，不允许更新
+    if (mcProcess.isStarted() && !mcProcess.isFinished()) {
+        std::cout << "skip cause process is running" << std::endl;
+        return;
     }
     currentIsoValue = isoValue;
     // 直接调用 updateIsoValue 的话，UI 记得更新
@@ -111,6 +113,7 @@ void MainWindow::runMarchingCubes(float isoValue) {
     readDataProcess.waitForFinished();
 
     mc->runAlgorithm(isoValue);
+    mc->saveObj("../../data/test.obj");
 
     emit marchingCubesFinished();
 }

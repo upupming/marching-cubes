@@ -27,7 +27,6 @@ MeshViewWidget::~MeshViewWidget() {
 }
 
 void MeshViewWidget::setMarchingCubes(MarchingCubes *mc) {
-    if (this->mc == mc) return;
     this->mc = mc;
     if (mc != nullptr) {
         makeCurrent();
