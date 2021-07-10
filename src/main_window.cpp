@@ -1,10 +1,7 @@
 ﻿#include "main_window.h"
 
-#include <QtConcurrent>
-#include <QtWidgets>
-
-#include "raw_reader.h"
-MainWindow::MainWindow() {
+MainWindow::MainWindow(bool autoTest) : autoTest(autoTest) {
+    readDataProcess = QtConcurrent::run(this, &MainWindow::readData);
     readSettings();
     QHBoxLayout *hBoxLayout = new QHBoxLayout;
     QVBoxLayout *vBoxLayout = new QVBoxLayout;
@@ -12,7 +9,7 @@ MainWindow::MainWindow() {
 
     meshViewWidget = new MeshViewWidget;
 
-    QSlider *slider = new QSlider;
+    slider = new QSlider;
     slider->setOrientation(Qt::Orientation::Horizontal);
     slider->setFocusPolicy(Qt::StrongFocus);
     slider->setTickPosition(QSlider::TicksBothSides);
@@ -42,12 +39,31 @@ MainWindow::MainWindow() {
             this, [=](int value) {
                 label->setText(QString("isoValue: ") + QString::number(value));
             });
+
+    updateIsoValue(800);
+}
+
+MainWindow::~MainWindow() {
+    delete rawReader;
+}
+
+void MainWindow::readData() {
+    rawReader = new RawReader("../../data/cbct_sample_z=507_y=512_x=512.raw", Z, Y, X);
 }
 
 // 必须在 GUI 线程里面更新 OpenGL 不然会报错，因为 context 不同了
 void MainWindow::updateMeshView() {
     meshViewWidget->setMarchingCubes(mc);
     meshViewWidget->update();
+
+    // auto test with random isoValue
+    if (autoTest) {
+        float isoValue;
+        do {
+            isoValue = QRandomGenerator::global()->generate() % 2000;
+        } while (isoValue == currentIsoValue);
+        updateIsoValue(isoValue);
+    }
 }
 
 void MainWindow::updateIsoValue(float isoValue) {
@@ -57,6 +73,10 @@ void MainWindow::updateIsoValue(float isoValue) {
         mcProcess.cancel();
     }
     currentIsoValue = isoValue;
+    // 直接调用 updateIsoValue 的话，UI 记得更新
+    if (slider->value() != currentIsoValue) {
+        slider->setValue(currentIsoValue);
+    }
     mcProcess = QtConcurrent::run(this, &MainWindow::runMarchingCubes, currentIsoValue);
 }
 
@@ -84,13 +104,11 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 }
 
 void MainWindow::runMarchingCubes(float isoValue) {
-    const int Z = 507, Y = 512, X = 512;
-    RawReader rawReader("../../data/cbct_sample_z=507_y=512_x=512.raw", Z, Y, X);
-    const unsigned short *data = rawReader.data();
+    readDataProcess.waitForFinished();
 
     std::array<int, 3> dim{Z, Y, X};
-    std::array<float, 3> spacing{0.3, 0.3, 0.3};
-    mc = new MarchingCubes(data, dim, spacing, true);
+    std::array<float, 3> spacing{0.3f, 0.3f, 0.3f};
+    mc = new MarchingCubes(rawReader->data(), dim, spacing, true);
     mc->runAlgorithm(isoValue);
 
     emit marchingCubesFinished();

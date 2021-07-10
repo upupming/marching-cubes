@@ -5,7 +5,7 @@
 #include "marching_cubes.h"
 
 void MarchingCubes::computeInterpolatedVertices() {
-#pragma omp parallel for collapse(3)
+#pragma omp parallel for
     for (int i = 0; i < dim[0]; i++) {
         for (int j = 0; j < dim[1]; j++) {
             for (int k = 0; k < dim[2]; k++) {
@@ -36,14 +36,7 @@ void MarchingCubes::computeInterpolatedVertices() {
                         normal_interpolated[1],
                         normal_interpolated[2]);
 
-                    omp_set_lock(&vertexLock);  //获得互斥器
-                    vertices.push_back(v);
-                    bmin[0] = std::min(bmin[0], v.x), bmax[0] = std::max(bmax[0], v.x);
-                    bmin[1] = std::min(bmin[1], v.y), bmax[1] = std::max(bmax[1], v.y);
-                    bmin[2] = std::min(bmin[2], v.z), bmax[2] = std::max(bmax[2], v.z);
-
-                    xDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k)] = vertices.size() - 1;
-                    omp_unset_lock(&vertexLock);  //释放互斥器
+                    xDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k)] = addVertex(v);
                 }
 
                 // y 方向
@@ -65,10 +58,7 @@ void MarchingCubes::computeInterpolatedVertices() {
                         normal_interpolated[0],
                         normal_interpolated[1],
                         normal_interpolated[2]);
-                    omp_set_lock(&vertexLock);  //获得互斥器
-                    vertices.push_back(v);
-                    yDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k)] = vertices.size() - 1;
-                    omp_unset_lock(&vertexLock);  //释放互斥器
+                    yDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k)] = addVertex(v);
                 }
 
                 // z 方向
@@ -90,10 +80,8 @@ void MarchingCubes::computeInterpolatedVertices() {
                         normal_interpolated[0],
                         normal_interpolated[1],
                         normal_interpolated[2]);
-                    omp_set_lock(&vertexLock);  //获得互斥器
-                    vertices.push_back(v);
-                    zDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k)] = vertices.size() - 1;
-                    omp_unset_lock(&vertexLock);  //释放互斥器
+
+                    zDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k)] = addVertex(v);
                 }
             }
         }
@@ -198,12 +186,10 @@ void MarchingCubes::addCenterVertex(int i, int j, int k) {
 
     // 既然要插值中间 vertex，肯定不可能边上没有 vertex 的
     if (cnt == 0) {
+        std::cout << "No neighboor to compute center vertex inside cube" << std::endl;
         assert(false);
     }
     center /= cnt;
     center.normalizeNormal();
-    omp_set_lock(&vertexLock);  //获得互斥器
-    vertices.push_back(center);
-    centerInterpolatedVertexIndex[glm::ivec3(i, j, k)] = vertices.size() - 1;
-    omp_unset_lock(&vertexLock);  //释放互斥器
+    centerInterpolatedVertexIndex[glm::ivec3(i, j, k)] = addVertex(center);
 }

@@ -49,20 +49,20 @@ void MeshViewWidget::mousePressEvent(QMouseEvent *e) {
     if (e->button() == Qt::MouseButton::LeftButton) {
         mouseLeftPressed = true;
         trackball(prev_quat, 0.0, 0.0, 0.0, 0.0);
-    } else if (e->button() == Qt::MouseButton::RightButton) {
-        mouseRightPressed = true;
     } else if (e->button() == Qt::MouseButton::MiddleButton) {
         mouseMiddlePressed = true;
+    } else if (e->button() == Qt::MouseButton::RightButton) {
+        mouseRightPressed = true;
     }
 }
 
 void MeshViewWidget::mouseReleaseEvent(QMouseEvent *e) {
     if (e->button() == Qt::MouseButton::LeftButton) {
         mouseLeftPressed = false;
-    } else if (e->button() == Qt::MouseButton::RightButton) {
-        mouseRightPressed = false;
     } else if (e->button() == Qt::MouseButton::MiddleButton) {
         mouseMiddlePressed = false;
+    } else if (e->button() == Qt::MouseButton::RightButton) {
+        mouseRightPressed = false;
     }
 }
 void MeshViewWidget::mouseMoveEvent(QMouseEvent *e) {
@@ -81,15 +81,15 @@ void MeshViewWidget::mouseMoveEvent(QMouseEvent *e) {
 
         add_quats(prev_quat, curr_quat, curr_quat);
     }
-    // 右键缩放
-    else if (mouseRightPressed) {
+    // 中间键移动
+    else if (mouseMiddlePressed) {
         eye[0] -= transScale * (mouse.x() - prevMouse.x()) / (float)width();
         lookat[0] -= transScale * (mouse.x() - prevMouse.x()) / (float)width();
         eye[1] += transScale * (mouse.y() - prevMouse.y()) / (float)height();
         lookat[1] += transScale * (mouse.y() - prevMouse.y()) / (float)height();
     }
-    // 中间键移动
-    else if (mouseMiddlePressed) {
+    // 右键缩放
+    else if (mouseRightPressed) {
         eye[2] += transScale * (mouse.y() - prevMouse.y()) / (float)height();
         lookat[2] += transScale * (mouse.y() - prevMouse.y()) / (float)height();
     }

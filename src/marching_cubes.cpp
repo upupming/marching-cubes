@@ -23,6 +23,12 @@ MarchingCubes::~MarchingCubes() {
 
 void MarchingCubes::runAlgorithm(float isoValue) {
     clock_t time = clock();
+    xDirectionInterpolatedVertexIndex.clear();
+    yDirectionInterpolatedVertexIndex.clear();
+    zDirectionInterpolatedVertexIndex.clear();
+    centerInterpolatedVertexIndex.clear();
+    vertices.clear();
+    triangles.clear();
 
     bmin[0] = bmin[1] = bmin[2] = std::numeric_limits<float>::max();
     bmax[0] = bmax[1] = bmax[2] = -std::numeric_limits<float>::max();
@@ -32,7 +38,7 @@ void MarchingCubes::runAlgorithm(float isoValue) {
     computeInterpolatedVertices();
 
 // 运行 marching cubes 算法，marching 并逐个处理 cube
-#pragma omp parallel for collapse(4)
+#pragma omp parallel for
     for (int i = 0; i < dim[0] - 1; i++) {
         for (int j = 0; j < dim[1] - 1; j++) {
             for (int k = 0; k < dim[2] - 1; k++) {
@@ -182,6 +188,7 @@ void MarchingCubes::processCube(int i, int j, int k, int configurationIndex, con
                     }
                     break;
                 default:
+                    std::cout << "case 7 subconfig should in range(0, 8)" << std::endl;
                     assert(false);
             }
             break;
@@ -227,6 +234,7 @@ void MarchingCubes::processCube(int i, int j, int k, int configurationIndex, con
                     addTriangle(i, j, k, {tiling10_1_1_[configurationIndexInCase], tiling10_1_1_[configurationIndexInCase] + 4 * 3});
                     break;
                 default:
+                    std::cout << "case 10 subconfig should in range(0, 4)" << std::endl;
                     assert(false);
             }
             break;
@@ -268,6 +276,7 @@ void MarchingCubes::processCube(int i, int j, int k, int configurationIndex, con
                     addTriangle(i, j, k, {tiling12_1_1_[configurationIndexInCase], tiling12_1_1_[configurationIndexInCase] + 4 * 3});
                     break;
                 default:
+                    std::cout << "case 12 subconfig should in range(0, 4)" << std::endl;
                     assert(false);
             }
             break;
@@ -323,6 +332,7 @@ void MarchingCubes::processCube(int i, int j, int k, int configurationIndex, con
                 // 13.1
                 addTriangle(i, j, k, {tiling13_1_[configurationIndexInCase], tiling13_1_[configurationIndexInCase] + 6 * 3});
             } else {
+                std::cout << "case 13 subconfig should in range(0, 46)" << std::endl;
                 assert(false);
             }
             break;
@@ -331,6 +341,7 @@ void MarchingCubes::processCube(int i, int j, int k, int configurationIndex, con
             addTriangle(i, j, k, {tiling14[configurationIndexInCase], tiling14[configurationIndexInCase] + 4 * 3});
             break;
         default:
+            std::cout << "case number should in range(0, 15)" << std::endl;
             assert(false);
     }
 }
@@ -342,14 +353,14 @@ void MarchingCubes::addTriangle(int i, int j, int k, std::vector<char> edges) {
         int b = getCubeVertexIndex(i, j, k, edges[l + 1]);
         int c = getCubeVertexIndex(i, j, k, edges[l + 2]);
         if (a == -1 || b == -1 || c == -1) {
+            std::cout << "addTriangle should got correct edge with vertice on edge" << std::endl;
             assert(false);
         }
         if (a == b || b == c || a == c) {
+            std::cout << "addTriangle should got different vertices" << std::endl;
             assert(false);
         }
-        omp_set_lock(&triangleLock);  //获得互斥器
-        triangles.push_back({a, b, c});
-        omp_unset_lock(&triangleLock);  //释放互斥器
+        addTriangle({a, b, c});
     }
 }
 
@@ -384,6 +395,7 @@ float MarchingCubes::testFace(int i, int j, int k, const std::vector<float>& cub
             A = 4, B = 7, C = 6, D = 5;
             break;
         default:
+            std::cout << "testFace got wrong face index: " << f << std::endl;
             assert(false);
     }
 
@@ -496,11 +508,13 @@ float MarchingCubes::testInterior(int i, int j, int k, const std::vector<float>&
                     Dt = cube[0] + (cube[4] - cube[0]) * t;
                     break;
                 default:
+                    std::cout << "testInterior got wrong edgeIdx: " << edgeIdx << std::endl;
                     assert(false);
                     break;
             }
             break;
         default:
+            std::cout << "testInterior got wrong caseIdx: " << caseIdx << std::endl;
             assert(false);
     }
 
@@ -528,6 +542,7 @@ float MarchingCubes::testInterior(int i, int j, int k, const std::vector<float>&
     else if (test <= 15)
         return alongEdgeIdx;
     else {
+        std::cout << "testInterior got wrong test value: " << test << std::endl;
         assert(false);
         return -1;
     }

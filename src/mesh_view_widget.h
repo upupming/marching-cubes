@@ -47,6 +47,7 @@ class MeshViewWidget : public QOpenGLWidget, protected QOpenGLFunctions {
     bool mouseLeftPressed = false, mouseRightPressed = false, mouseMiddlePressed = false;
     float curr_quat[4] = {0, 0, 0, 1};
     float prev_quat[4] = {0, 0, 0, 1};
+    // model 放在原点并且缩放到 [0, 1] 区间，我们从 z=3 往 -z 方向看，确保能够看到 model 整体全貌，不管它有多大
     glm::vec3 eye = {0, 0, 3}, lookat = {0, 0, 0}, up = {0, 1, 0};
 
     QOpenGLBuffer arrayBuf;

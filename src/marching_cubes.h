@@ -3,6 +3,8 @@ Marching Cubes 算法实现
 参考论文: efficient implementation of Marching Cubes’ cases with topological guarantees
 */
 #pragma once
+
+#include <concurrent_unordered_map.h>
 #include <omp.h>
 
 #include <array>
@@ -60,11 +62,26 @@ class MarchingCubes {
     omp_lock_t vertexLock, triangleLock;
     const unsigned short* data;
     std::array<int, 3> dim;
-    std::array<float, 3> spacing{1, 1, 1};
+    std::array<float, 3> spacing{1.f, 1.f, 1.f};
     bool reverseGradientDirection = false;
     std::vector<Vertex> vertices;
+    inline int addVertex(const Vertex& v) {
+        omp_set_lock(&vertexLock);
+        vertices.push_back(v);
+        omp_unset_lock(&vertexLock);
+        bmin[0] = std::min(bmin[0], v.x), bmax[0] = std::max(bmax[0], v.x);
+        bmin[1] = std::min(bmin[1], v.y), bmax[1] = std::max(bmax[1], v.y);
+        bmin[2] = std::min(bmin[2], v.z), bmax[2] = std::max(bmax[2], v.z);
+        return vertices.size() - 1;
+    };
     // 所有的三角形，其中每个三角形是 3 个 Vertex 在 vertices 中的索引下标
     std::vector<std::array<int, 3>> triangles;
+    inline int addTriangle(const std::array<int, 3>& t) {
+        omp_set_lock(&triangleLock);
+        triangles.push_back(t);
+        omp_unset_lock(&triangleLock);
+        return triangles.size() - 1;
+    }
     float isoValue;
     inline float getData(int i, int j, int k) {
         float val = data[i * dim[1] * dim[2] + j * dim[2] + k] - isoValue;
@@ -82,7 +99,10 @@ class MarchingCubes {
     // y 方向又叫 longitudinal 方向
     // z 方向又叫 vertical 方向
     // 对于有一些为了解决内部歧义的情况（例如 6.1.2），需要在 cube 正中间插值算一个顶点，这个顶点的标号为 12，存在 centerInterpolatedVertexIndex 里面，由于并不是所有 cube 都有 12，因此在 processCube 实际用到的时候才去添加
-    std::unordered_map<glm::ivec3, int> xDirectionInterpolatedVertexIndex, yDirectionInterpolatedVertexIndex, zDirectionInterpolatedVertexIndex,
+    concurrency::concurrent_unordered_map<glm::ivec3, int>
+        xDirectionInterpolatedVertexIndex,
+        yDirectionInterpolatedVertexIndex,
+        zDirectionInterpolatedVertexIndex,
         centerInterpolatedVertexIndex;
     void computeInterpolatedVertices();
     /**
