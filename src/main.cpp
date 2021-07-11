@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifndef QT_NO_OPENGL
-    MainWindow mainWin(false);
+    MainWindow mainWin(true);
     mainWin.show();
 #else
     QLabel note("OpenGL Support required");

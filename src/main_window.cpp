@@ -113,7 +113,7 @@ void MainWindow::runMarchingCubes(float isoValue) {
     readDataProcess.waitForFinished();
 
     mc->runAlgorithm(isoValue);
-    mc->saveObj("../../data/test.obj");
+    // mc->saveObj("../../data/test.obj");
 
     emit marchingCubesFinished();
 }

@@ -36,7 +36,7 @@ void MarchingCubes::computeInterpolatedVertices() {
                         normal_interpolated[1],
                         normal_interpolated[2]);
 
-                    xDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k)] = addVertex(v);
+                    addVertex(i, j, k, xDirectionInterpolatedVertexIndex, v);
                 }
 
                 // y 方向
@@ -58,7 +58,7 @@ void MarchingCubes::computeInterpolatedVertices() {
                         normal_interpolated[0],
                         normal_interpolated[1],
                         normal_interpolated[2]);
-                    yDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k)] = addVertex(v);
+                    addVertex(i, j, k, yDirectionInterpolatedVertexIndex, v);
                 }
 
                 // z 方向
@@ -81,7 +81,7 @@ void MarchingCubes::computeInterpolatedVertices() {
                         normal_interpolated[1],
                         normal_interpolated[2]);
 
-                    zDirectionInterpolatedVertexIndex[glm::ivec3(i, j, k)] = addVertex(v);
+                    addVertex(i, j, k, zDirectionInterpolatedVertexIndex, v);
                 }
             }
         }
@@ -191,5 +191,5 @@ void MarchingCubes::addCenterVertex(int i, int j, int k) {
     }
     center /= cnt;
     center.normalizeNormal();
-    centerInterpolatedVertexIndex[glm::ivec3(i, j, k)] = addVertex(center);
+    addVertex(i, j, k, centerInterpolatedVertexIndex, center);
 }

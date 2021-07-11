@@ -65,14 +65,14 @@ class MarchingCubes {
     std::array<float, 3> spacing{1.f, 1.f, 1.f};
     bool reverseGradientDirection = false;
     std::vector<Vertex> vertices;
-    inline int addVertex(const Vertex& v) {
+    inline void addVertex(int i, int j, int k, concurrency::concurrent_unordered_map<glm::ivec3, int>& vertexIndex, const Vertex& v) {
         omp_set_lock(&vertexLock);
         vertices.push_back(v);
-        omp_unset_lock(&vertexLock);
         bmin[0] = std::min(bmin[0], v.x), bmax[0] = std::max(bmax[0], v.x);
         bmin[1] = std::min(bmin[1], v.y), bmax[1] = std::max(bmax[1], v.y);
         bmin[2] = std::min(bmin[2], v.z), bmax[2] = std::max(bmax[2], v.z);
-        return vertices.size() - 1;
+        vertexIndex[glm::ivec3(i, j, k)] = vertices.size() - 1;
+        omp_unset_lock(&vertexLock);
     };
     // 所有的三角形，其中每个三角形是 3 个 Vertex 在 vertices 中的索引下标
     std::vector<std::array<int, 3>> triangles;
