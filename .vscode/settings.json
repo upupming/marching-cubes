@@ -95,7 +95,8 @@
     "qtwidgets": "cpp",
     "qtwidgetsdepends": "cpp",
     "qopengltexture": "cpp",
-    "forward_list": "cpp"
+    "forward_list": "cpp",
+    "qfuture": "cpp"
   },
   "cmake.configureOnOpen": false,
   "cmake.configureOnEdit": false,

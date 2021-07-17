@@ -26,7 +26,8 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifndef QT_NO_OPENGL
-    MainWindow mainWin(true);
+    // 改为 true 可以开启无限循环自动测试
+    MainWindow mainWin(false);
     mainWin.show();
 #else
     QLabel note("OpenGL Support required");

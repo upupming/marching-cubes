@@ -19,7 +19,6 @@ class MeshViewWidget : public QOpenGLWidget, protected QOpenGLFunctions {
     Q_OBJECT
 
    public:
-    using QOpenGLWidget::QOpenGLWidget;
     ~MeshViewWidget();
     MeshViewWidget(MarchingCubes *mc = nullptr);
     void setMarchingCubes(MarchingCubes *mc);
