@@ -31,6 +31,7 @@ class MainWindow : public QMainWindow {
     QFuture<void> mcProcess, readDataProcess;
     RawReader *rawReader;
     const int Z = 507, Y = 512, X = 512;
+    const int MAX_ISO_VALUE = 4000;
     bool autoTest = false;
     // https://forum.qt.io/topic/52989/solved-accessing-ui-from-qtconcurrent-run/4
    signals:

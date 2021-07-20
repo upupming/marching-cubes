@@ -15,7 +15,7 @@ MainWindow::MainWindow(bool autoTest) : autoTest(autoTest) {
     slider->setTickPosition(QSlider::TicksBothSides);
     slider->setTickInterval(100);
     slider->setSingleStep(1);
-    slider->setMaximum(2000);
+    slider->setMaximum(MAX_ISO_VALUE);
 
     QLabel *label = new QLabel;
     label->setText("isoValue: 0");
@@ -64,7 +64,7 @@ void MainWindow::updateMeshView() {
     if (autoTest) {
         float isoValue;
         do {
-            isoValue = QRandomGenerator::global()->generate() % 2000;
+            isoValue = QRandomGenerator::global()->generate() % MAX_ISO_VALUE;
         } while (isoValue == currentIsoValue);
         updateIsoValue(isoValue);
     }
