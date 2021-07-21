@@ -72,11 +72,11 @@ jobs:
           ls ${{ env.srcDir }}/.git
           ls ${{ env.srcDir }}/vcpkg
 
-      - name: Install Python 3.7 version
-        uses: actions/setup-python@v1
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.9
         with:
-          python-version: "3.7"
-          architecture: ${{ matrix.arch }}
+          cmake-version: "3.20"
+
       # =========================================================================================================
       - name: Install MSVC compiler
         uses: ilammy/msvc-dev-cmd@v1
@@ -129,11 +129,19 @@ jobs:
         # https://stackoverflow.com/questions/31262342/cmake-g-ninja-on-windows-specify-x64?rq=1
         run: |
           Get-PsDrive
+          cmake --version
+          ninja --version
           cmake -S ${{ env.srcDir }} -B ${{ env.buildDir }} -GNinja -DCMAKE_BUILD_TYPE=Release
           cmake --build ${{ env.buildDir }} --target all --parallel $(nproc)
           cd ${{ env.buildDir }}
           windeployqt.exe --release --qmldir .. ./${{ env.name }}.exe
           Get-PsDrive
+
+      - name: If the job has failed
+        if: ${{ failure() }}
+        run: |
+          ls ${{ env.srcDir }}/build/
+          cat ${{ env.srcDir }}/build/vcpkg-manifest-install.log
 
       - name: Set outputs
         id: vars
