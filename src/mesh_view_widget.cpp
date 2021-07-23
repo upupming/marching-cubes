@@ -169,30 +169,29 @@ void MeshViewWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Calculate model view transformation
-    QMatrix4x4 model;
-
-    // 对相机进行旋转，等价于对 model 进行逆旋转
-    model.rotate(QQuaternion(curr_quat[3], -curr_quat[0], -curr_quat[1], -curr_quat[2]));
-
-    model.scale(1.0 / mc->maxExtent);
-    model.translate(
+    QMatrix4x4 translate, scale, rotate, model;
+    translate.translate(
         -0.5 * (mc->bmax[0] + mc->bmin[0]),
         -0.5 * (mc->bmax[1] + mc->bmin[1]),
         -0.5 * (mc->bmax[2] + mc->bmin[2]));
+    scale.scale(1.0 / mc->maxExtent);
+    rotate.rotate(QQuaternion(curr_quat[3], -curr_quat[0], -curr_quat[1], -curr_quat[2]));
+    model = rotate * scale * translate;
 
-    auto view = glm::lookAt(eye, lookat, up);
-    // 可能内部数据存储的方式不一样，所以需要转置一下
+    QMatrix4x4 view;
+    // 内部数据存储的方式不一样，所以需要转置一下
     // https://stackoverflow.com/a/37588210/8242705
     // glm 内部存储是 column major 的，但是 qt 接受的是 row major 的数据
     // https://community.khronos.org/t/while-matrices-are-in-row-major-or-column-major-im-in-confunsion-major/74135/5
-    auto p = glm::value_ptr(view);
-    QMatrix4x4 view_m = QMatrix4x4(p).transposed();
+    auto lookAtMatrix = glm::lookAt(eye, lookat, up);
+    auto p = glm::value_ptr(lookAtMatrix);
+    view = QMatrix4x4(p).transposed();
 
     // Set modelview-projection matrix
     program.setUniformValue("model", model);
-    program.setUniformValue("view", view_m);
+    program.setUniformValue("view", view);
     program.setUniformValue("projection", projection);
-    program.setUniformValue("mvp_matrix", projection * model);
+    program.setUniformValue("mvp_matrix", projection * view * model);
     program.setUniformValue("viewPos", eye[0], eye[1], eye[2]);
 
     // Tell OpenGL which VBOs to use
