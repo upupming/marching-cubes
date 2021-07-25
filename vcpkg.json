@@ -3,7 +3,7 @@
     "name": "marching-cubes",
     "version-string": "0.0.1",
     "license": "MIT",
-    "builtin-baseline": "b761301f77a68bbe443034f1ed6ccebbd52614e8",
+    "builtin-baseline": "5ce620b6ba5c0d5834bf8e18b75c3c0c746e74cd",
     "dependencies": [
         {
             "name": "glm",
