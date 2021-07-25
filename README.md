@@ -42,7 +42,7 @@
     - isoValue 800, 顶点数 4,256,478, 面数 8,165,228
 
 - `assert(buf.bind())` 这样的写法是有问题的，因为 `Release` 模式下会忽略所有的 `assert` 语句，导致 bind 不执行，最终 `glDrawElements` 找不到 buffer 就报内存错误了。
-- 将原有的三维数组改为 `unordered_ma`
+- 将原有的保存插值 Vertex 的三维数组改为 `unordered_map`，这样可以节省空间
 
 细节展示：
 
